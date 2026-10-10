@@ -81,7 +81,10 @@ const registerUser = async (req, res) => {
 // Login user
 const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+   const { email, password } = req.body;
+
+console.log("Login request received");
+console.log("Login email:", email);
 
     if (!email || !password) {
       return res.status(400).json({
@@ -139,7 +142,7 @@ const loginUser = async (req, res) => {
     res.status(200).json({
       message: "Login successful",
       token,
-      user: {
+      user: {    
         id: user._id,
         name: user.name,
         email: user.email,
