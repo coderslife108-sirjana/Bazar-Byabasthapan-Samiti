@@ -19,7 +19,7 @@ function Login() {
 
     try {
       const response = await api.post("/auth/login", {
-        email,
+        email: email.trim().toLowerCase(),
         password,
       });
 
@@ -37,7 +37,9 @@ function Login() {
     } catch (err) {
       setError(
         err.response?.data?.message ||
-          "Login failed. Please check your email and password."
+          (err.request
+            ? "Unable to connect to the server. Check your connection and try again."
+            : "Unable to sign in. Please try again.")
       );
     } finally {
       setLoading(false);
@@ -137,6 +139,9 @@ function Login() {
                   type="email"
                   placeholder="you@example.com"
                   autoComplete="email"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  inputMode="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}

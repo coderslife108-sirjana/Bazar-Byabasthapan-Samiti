@@ -1,16 +1,22 @@
-# React + Vite
+# Dumkibas Bazar Byabasthapan Samiti
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+## Run on a laptop and mobile device
 
-Currently, two official plugins are available:
+1. Start the API from the `server` directory with `npm run dev` (or `npm start`).
+2. Start the client from this directory with `npm run dev -- --host 0.0.0.0`.
+3. Connect the phone and laptop to the same Wi-Fi network, then open the Vite
+   network address shown in the terminal on the phone. To find the laptop's
+   local IPv4 address on Windows, run `ipconfig` and use
+   `http://<IPv4-address>:5173`.
+4. If Windows Firewall prompts you, allow Node.js on the private network.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+The client proxies `/api` requests to the API on the laptop, so the phone does
+not try to connect to its own `localhost`. Keep both servers running while
+testing. For a deployed build, set `VITE_API_BASE_URL` to the public API URL
+including `/api` before building.
 
-## React Compiler
+## Client commands
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+- `npm run dev` starts the development server.
+- `npm run build` creates a production build.
+- `npm run lint` runs Oxlint.

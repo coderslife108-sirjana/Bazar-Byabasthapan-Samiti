@@ -81,19 +81,18 @@ const registerUser = async (req, res) => {
 // Login user
 const loginUser = async (req, res) => {
   try {
-   const { email, password } = req.body;
+    const { email, password } = req.body;
+    const normalizedEmail =
+      typeof email === "string" ? email.trim().toLowerCase() : "";
 
-console.log("Login request received");
-console.log("Login email:", email);
-
-    if (!email || !password) {
+    if (!normalizedEmail || !password) {
       return res.status(400).json({
         message: "Email and password are required",
       });
     }
 
     const user = await User.findOne({
-      email: email.toLowerCase(),
+      email: normalizedEmail,
     });
 
     if (!user) {
@@ -142,7 +141,7 @@ console.log("Login email:", email);
     res.status(200).json({
       message: "Login successful",
       token,
-      user: {    
+      user: {
         id: user._id,
         name: user.name,
         email: user.email,
