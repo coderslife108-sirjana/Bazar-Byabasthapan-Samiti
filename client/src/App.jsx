@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Pending from "./pages/Pending";
@@ -13,13 +14,15 @@ import AdminUsers from "./pages/AdminUsers";
 import Notices from "./pages/Notices";
 import AdminNotices from "./pages/AdminNotices";
 import AdminAnnouncements from "./pages/AdminAnnouncements";
+import Announcements from "./pages/Announcements";
+
 
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/pending" element={<Pending />} />
@@ -35,6 +38,8 @@ function App() {
         <Route path="/notices" element={<Notices />} />
         <Route path="/admin/notices" element={<AdminNotices />} />
         <Route  path="/admin/announcements"  element={<AdminAnnouncements />} />
+        <Route path="/announcements" element={<Announcements />} />
+
       </Routes>
     </BrowserRouter>
   );

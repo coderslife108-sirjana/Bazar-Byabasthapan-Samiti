@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 
@@ -14,742 +15,502 @@ function AdminDashboard() {
   });
 
   const [menuOpen, setMenuOpen] = useState(false);
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [actionLoading, setActionLoading] = useState("");
 
-  // ======================================================
-  // GET PENDING USERS
-  // ======================================================
-
-  const getPendingUsers = async () => {
+  const admin = (() => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await api.get(
-        "/admin/pending-users",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      setUsers(response.data.users);
-    } catch (error) {
-      setError(
-        error.response?.data?.message ||
-          "Failed to load pending users"
-      );
+      return JSON.parse(localStorage.getItem("user") || "null");
+    } catch {
+      return null;
     }
-  };
+  })();
 
-  // ======================================================
-  // GET DASHBOARD STATISTICS
-  // ======================================================
+  const loadDashboard = useCallback(async () => {
+    setLoading(true);
+    setError("");
 
-  const getDashboardStats = async () => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await api.get(
-        "/admin/dashboard-stats",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      setStats(response.data);
-    } catch (error) {
-      setError(
-        error.response?.data?.message ||
-          "Failed to load dashboard statistics"
-      );
-    }
-  };
-
-  // ======================================================
-  // LOAD DASHBOARD
-  // ======================================================
-
-  const loadDashboard = async () => {
-    try {
-      setLoading(true);
-      setError("");
-
-      await Promise.all([
-        getPendingUsers(),
-        getDashboardStats(),
+      const [usersResponse, statsResponse] = await Promise.all([
+        api.get("/admin/pending-users"),
+        api.get("/admin/dashboard-stats"),
       ]);
-    } catch (error) {
-      setError("Failed to load dashboard");
+
+      setUsers(
+        Array.isArray(usersResponse.data.users)
+          ? usersResponse.data.users
+          : []
+      );
+      setStats((previous) => ({
+        ...previous,
+        ...statsResponse.data,
+      }));
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+          "Unable to load dashboard information. Please try again."
+      );
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadDashboard();
-  }, []);
+  }, [loadDashboard]);
 
-  // ======================================================
-  // APPROVE USER
-  // ======================================================
+  const handleUserAction = async (userId, action) => {
+    const actionName = `${userId}-${action}`;
+    setActionLoading(actionName);
+    setError("");
 
-  const handleApprove = async (userId) => {
     try {
-      const token = localStorage.getItem("token");
-
-      await api.put(
-        `/admin/users/${userId}/approve`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      loadDashboard();
-    } catch (error) {
+      await api.put(`/admin/users/${userId}/${action}`, {});
+      await loadDashboard();
+    } catch (err) {
       setError(
-        error.response?.data?.message ||
-          "Failed to approve user"
+        err.response?.data?.message ||
+          `Failed to ${action} this user. Please try again.`
       );
+    } finally {
+      setActionLoading("");
     }
   };
-
-  // ======================================================
-  // REJECT USER
-  // ======================================================
-
-  const handleReject = async (userId) => {
-    try {
-      const token = localStorage.getItem("token");
-
-      await api.put(
-        `/admin/users/${userId}/reject`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      loadDashboard();
-    } catch (error) {
-      setError(
-        error.response?.data?.message ||
-          "Failed to reject user"
-      );
-    }
-  };
-
-  // ======================================================
-  // LOGOUT
-  // ======================================================
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-
     navigate("/login");
   };
 
-  const admin = JSON.parse(
-    localStorage.getItem("user")
+  const closeMenuAndNavigate = (path) => {
+    setMenuOpen(false);
+    navigate(path);
+  };
+
+  const navItems = [
+    { label: "Dashboard", icon: "⌂", path: "/admin" },
+    { label: "Reports", icon: "▤", path: "/admin/reports" },
+    { label: "Users", icon: "♙", path: "/admin/users" },
+    { label: "Notices", icon: "▣", path: "/admin/notices" },
+    {
+      label: "Announcements",
+      icon: "◉",
+      path: "/admin/announcements",
+    },
+  ];
+
+  const statCards = [
+    {
+      label: "Total Users",
+      value: stats.totalUsers,
+      icon: "♙",
+      color: "bg-sky-50 text-sky-700",
+      note: "Registered accounts",
+    },
+    {
+      label: "Active Users",
+      value: stats.activeUsers,
+      icon: "✓",
+      color: "bg-emerald-50 text-emerald-700",
+      note: "Approved accounts",
+    },
+    {
+      label: "Pending Requests",
+      value: stats.pendingUsers,
+      icon: "◷",
+      color: "bg-amber-50 text-amber-700",
+      note: "Awaiting review",
+    },
+    {
+      label: "Total Reports",
+      value: stats.totalReports,
+      icon: "▤",
+      color: "bg-violet-50 text-violet-700",
+      note: "Community reports",
+    },
+  ];
+
+  const Sidebar = ({ mobile = false }) => (
+    <>
+      <div className="px-6 py-6 border-b border-slate-100">
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 shrink-0 rounded-xl bg-emerald-700 text-white flex items-center justify-center text-xl font-bold shadow-sm">
+            D
+          </div>
+          <div>
+            <h1 className="text-base font-bold text-slate-800">
+              Dumkibas Bazar
+            </h1>
+            <p className="text-xs text-slate-500 mt-1">
+              Byabasthapan Samiti
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="px-4 pt-6 pb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+        Management
+      </div>
+
+      <nav className="px-3 space-y-1 flex-1">
+        {navItems.map((item) => {
+          const active = item.path === "/admin";
+
+          return (
+            <button
+              key={item.path}
+              onClick={() => closeMenuAndNavigate(item.path)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition ${
+                active
+                  ? "bg-emerald-50 text-emerald-800 font-semibold"
+                  : "text-slate-600 hover:bg-slate-50 hover:text-emerald-800"
+              }`}
+            >
+              <span className="w-6 text-center text-lg" aria-hidden="true">
+                {item.icon}
+              </span>
+              <span className="text-sm">{item.label}</span>
+              {active && (
+                <span className="ml-auto w-2 h-2 rounded-full bg-emerald-600" />
+              )}
+            </button>
+          );
+        })}
+      </nav>
+
+      <div className="p-4 border-t border-slate-100">
+        <div className="rounded-xl bg-slate-50 p-3 mb-3">
+          <p className="text-sm font-semibold text-slate-700 truncate">
+            {admin?.name || "Administrator"}
+          </p>
+          <p className="text-xs text-slate-500 mt-1">Administrator</p>
+        </div>
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-sm font-medium text-red-600 hover:bg-red-50 transition"
+        >
+          <span aria-hidden="true">↪</span>
+          Sign out
+        </button>
+      </div>
+    </>
   );
 
   return (
-    <div className="min-h-screen bg-slate-100">
-
-      {/* ================= MOBILE HEADER ================= */}
-
-      <header className="lg:hidden bg-white border-b px-4 py-4 flex items-center justify-between">
-
-        <div>
-          <h1 className="font-bold text-slate-800">
-            Dumkibas Bazar
-          </h1>
-
-          <p className="text-xs text-slate-500">
-            Admin Panel
-          </p>
+    <div className="min-h-screen bg-slate-50">
+      {/* Mobile header */}
+      <header className="lg:hidden sticky top-0 z-30 bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-emerald-700 text-white flex items-center justify-center text-lg font-bold">
+            D
+          </div>
+          <div>
+            <h1 className="font-bold text-slate-800">Dumkibas Bazar</h1>
+            <p className="text-xs text-slate-500">Admin Portal</p>
+          </div>
         </div>
 
         <button
+          type="button"
           onClick={() => setMenuOpen(!menuOpen)}
-          className="text-2xl text-slate-700"
+          aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
+          aria-expanded={menuOpen}
+          className="w-10 h-10 rounded-xl border border-slate-200 text-slate-700 text-xl hover:bg-slate-50"
         >
-          ☰
+          {menuOpen ? "×" : "☰"}
         </button>
-
       </header>
 
-      {/* ================= MOBILE MENU ================= */}
-
+      {/* Mobile navigation */}
       {menuOpen && (
-        <div className="lg:hidden bg-white border-b p-4 space-y-2">
-
+        <div className="lg:hidden fixed inset-0 z-20 bg-slate-900/30">
+          <aside className="bg-white w-72 max-w-[85vw] h-full flex flex-col shadow-xl">
+            <Sidebar mobile />
+          </aside>
           <button
-            onClick={() => {
-              navigate("/admin");
-              setMenuOpen(false);
-            }}
-            className="w-full text-left px-4 py-3 rounded-lg bg-blue-50 text-blue-700 font-medium"
-          >
-            🏠 Dashboard
-          </button>
-
-          <button
-            onClick={() => {
-              navigate("/admin/reports");
-              setMenuOpen(false);
-            }}
-            className="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-100"
-          >
-            📝 Reports
-          </button>
-
-          <button onClick={() => navigate("/admin/users")} className="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-100 text-slate-700"> 👥 Users</button>
-
-          <button
-            className="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-100"
-          >
-            ⚠️ Complaints
-          </button>
-
-            <button
-  onClick={() => {
-    navigate("/admin/notices");
-    setMenuOpen(false);
-  }}
-  className="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-100"
->
-  📢 Notices
-</button>
-
-          
-<button
-  onClick={() => {
-    navigate("/admin/announcements");
-    setMenuOpen(false);
-  }}
-  className="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-100"
->
-  📣 Announcements
-</button>
-
-          <button
-            className="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-100"
-          >
-            📄 Documents
-          </button>
-
-          <button
-            className="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-100"
-          >
-            ⚙️ Settings
-          </button>
-
-          <button
-            onClick={handleLogout}
-            className="w-full text-left px-4 py-3 rounded-lg text-red-600 hover:bg-red-50"
-          >
-            🚪 Logout
-          </button>
-
+            className="absolute inset-0 -z-10 w-full h-full cursor-default"
+            aria-label="Close navigation menu"
+            onClick={() => setMenuOpen(false)}
+          />
         </div>
       )}
 
-      <div className="flex">
-
-        {/* ================= DESKTOP SIDEBAR ================= */}
-
-        <aside className="hidden lg:flex w-64 min-h-screen bg-white border-r flex-col">
-
-          <div className="p-6 border-b">
-
-            <h1 className="text-xl font-bold text-slate-800">
-              Dumkibas Bazar
-            </h1>
-
-            <p className="text-sm text-slate-500 mt-1">
-              Management Committee
-            </p>
-
-          </div>
-
-          <nav className="p-4 space-y-2 flex-1">
-
-            <button
-              onClick={() => navigate("/admin")}
-              className="w-full text-left px-4 py-3 rounded-lg bg-blue-50 text-blue-700 font-medium"
-            >
-              🏠 Dashboard
-            </button>
-
-            <button
-              onClick={() =>
-                navigate("/admin/reports")
-              }
-              className="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-100 text-slate-700"
-            >
-              📝 Reports
-            </button>
-
-            <button
-              className="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-100 text-slate-700"
-            >
-              👥 Users
-            </button>
-
-            <button
-  onClick={() => navigate("/admin/notices")}
-  className="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-100 text-slate-700"
->
-  📢 Notices
-</button>
-
-            <button
-              className="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-100 text-slate-700"
-            >
-              📢 Notices
-            </button>
-
-            <button
-  onClick={() => navigate("/admin/announcements")}
-  className="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-100 text-slate-700"
->
-  📣 Announcements
-</button>
-
-            <button
-              className="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-100 text-slate-700"
-            >
-              📄 Documents
-            </button>
-
-            <button
-              className="w-full text-left px-4 py-3 rounded-lg hover:bg-slate-100 text-slate-700"
-            >
-              ⚙️ Settings
-            </button>
-
-          </nav>
-
-          <div className="p-4 border-t">
-
-            <button
-              onClick={handleLogout}
-              className="w-full text-left px-4 py-3 rounded-lg text-red-600 hover:bg-red-50"
-            >
-              🚪 Logout
-            </button>
-
-          </div>
-
+      <div className="flex min-h-screen">
+        {/* Desktop sidebar */}
+        <aside className="hidden lg:flex w-72 shrink-0 bg-white border-r border-slate-200 flex-col min-h-screen">
+          <Sidebar />
         </aside>
 
-        {/* ================= MAIN CONTENT ================= */}
+        {/* Main content */}
+        <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-9">
+          {/* Page heading */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+            <div>
+              <p className="text-sm font-medium text-emerald-700">
+                ADMINISTRATION / OVERVIEW
+              </p>
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mt-2">
+                Welcome back, {admin?.name || "Admin"}
+              </h2>
+              <p className="text-slate-500 mt-2">
+                Here's an overview of your community management portal.
+              </p>
+            </div>
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">
-
-          {/* Header */}
-
-          <div className="mb-8">
-
-            <p className="text-sm text-slate-500">
-              Admin Panel
-            </p>
-
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 mt-1">
-              Welcome, {admin?.name || "Admin"} 👋
-            </h2>
-
-            <p className="text-slate-500 mt-2">
-              Manage the Dumkibas Bazar Management Committee.
-            </p>
-
+            <button
+              onClick={loadDashboard}
+              disabled={loading}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+            >
+              <span aria-hidden="true">↻</span>
+              {loading ? "Refreshing..." : "Refresh data"}
+            </button>
           </div>
 
-          {/* Error */}
-
+          {/* Error message */}
           {error && (
-            <div className="mb-6 bg-red-50 text-red-700 border border-red-200 rounded-lg p-4">
-              {error}
+            <div
+              role="alert"
+              className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-700"
+            >
+              <p>{error}</p>
+              <button
+                onClick={loadDashboard}
+                className="font-semibold underline self-start"
+              >
+                Try again
+              </button>
             </div>
           )}
 
-          {/* ================= STATISTICS ================= */}
-
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-
-            {/* Total Users */}
-
-            <div className="bg-white rounded-xl border p-5">
-
-              <div className="flex items-center justify-between">
-
-                <p className="text-sm text-slate-500">
-                  Total Users
-                </p>
-
-                <span className="text-2xl">
-                  👥
-                </span>
-
-              </div>
-
-              <p className="text-3xl font-bold text-slate-800 mt-3">
-                {loading ? "..." : stats.totalUsers}
-              </p>
-
-            </div>
-
-            {/* Active Users */}
-
-            <div className="bg-white rounded-xl border p-5">
-
-              <div className="flex items-center justify-between">
-
-                <p className="text-sm text-slate-500">
-                  Active Users
-                </p>
-
-                <span className="text-2xl">
-                  ✅
-                </span>
-
-              </div>
-
-              <p className="text-3xl font-bold text-green-600 mt-3">
-                {loading ? "..." : stats.activeUsers}
-              </p>
-
-            </div>
-
-            {/* Pending Users */}
-
-            <div className="bg-white rounded-xl border p-5">
-
-              <div className="flex items-center justify-between">
-
-                <p className="text-sm text-slate-500">
-                  Pending Users
-                </p>
-
-                <span className="text-2xl">
-                  ⏳
-                </span>
-
-              </div>
-
-              <p className="text-3xl font-bold text-yellow-600 mt-3">
-                {loading ? "..." : stats.pendingUsers}
-              </p>
-
-            </div>
-
-            {/* Reports */}
-
-            <div className="bg-white rounded-xl border p-5">
-
-              <div className="flex items-center justify-between">
-
-                <p className="text-sm text-slate-500">
-                  Total Reports
-                </p>
-
-                <span className="text-2xl">
-                  📝
-                </span>
-
-              </div>
-
-              <p className="text-3xl font-bold text-blue-600 mt-3">
-                {loading ? "..." : stats.totalReports}
-              </p>
-
-            </div>
-
-          </div>
-
-          {/* ================= QUICK ACTIONS ================= */}
-
-          <section className="mb-8">
-
-            <h3 className="text-lg font-semibold text-slate-800 mb-4">
-              Quick Actions
-            </h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-
-              <button
-                onClick={() =>
-                  navigate("/admin/reports")
-                }
-                className="text-left bg-white p-6 rounded-xl border hover:shadow-md transition"
+          {/* Statistics */}
+          <section aria-label="Dashboard statistics" className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-4 mb-8">
+            {statCards.map((card) => (
+              <div
+                key={card.label}
+                className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow"
               >
-
-                <div className="text-3xl mb-3">
-                  📝
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium text-slate-500">
+                      {card.label}
+                    </p>
+                    <p className="text-3xl font-bold text-slate-900 mt-3">
+                      {loading ? "—" : card.value ?? 0}
+                    </p>
+                  </div>
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${card.color}`}>
+                    {card.icon}
+                  </div>
                 </div>
-
-                <h4 className="font-semibold text-slate-800">
-                  Manage Reports
-                </h4>
-
-                <p className="text-sm text-slate-500 mt-1">
-                  Review and update reports submitted by members.
-                </p>
-
-              </button>
-
-              <button
-                onClick={() =>
-                  document
-                    .getElementById("pending-users")
-                    ?.scrollIntoView({
-                      behavior: "smooth",
-                    })
-                }
-                className="text-left bg-white p-6 rounded-xl border hover:shadow-md transition"
-              >
-
-                <div className="text-3xl mb-3">
-                  👥
-                </div>
-
-                <h4 className="font-semibold text-slate-800">
-                  Manage Users
-                </h4>
-
-                <p className="text-sm text-slate-500 mt-1">
-                  Review pending access requests.
-                </p>
-
-              </button>
-
-              <button
-  onClick={() => navigate("/admin/notices")}
-  className="text-left bg-white p-6 rounded-xl border hover:shadow-md transition"
->
-
-                <div className="text-3xl mb-3">
-                  📢
-                </div>
-
-                <h4 className="font-semibold text-slate-800">
-                  Manage Notices
-                </h4>
-
-                <p className="text-sm text-slate-500 mt-1">
-                  Publish important committee notices.
-                </p>
-
-              </button>
-
-            </div>
-
+                <p className="text-xs text-slate-400 mt-4">{card.note}</p>
+              </div>
+            ))}
           </section>
 
-          {/* ================= PENDING USERS ================= */}
+          {/* Quick actions */}
+          <section className="mb-8">
+            <div className="mb-4">
+              <h3 className="text-lg font-bold text-slate-900">
+                Quick actions
+              </h3>
+              <p className="text-sm text-slate-500 mt-1">
+                Jump directly to common management tasks.
+              </p>
+            </div>
 
-          <section
-            id="pending-users"
-            className="bg-white rounded-xl border"
-          >
-
-            <div className="p-5 sm:p-6 border-b">
-
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-
-                <div>
-
-                  <h3 className="text-lg font-semibold text-slate-800">
-                    Pending Access Requests
-                  </h3>
-
-                  <p className="text-sm text-slate-500 mt-1">
-                    Review users waiting for approval.
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+              {[
+                {
+                  title: "Manage Reports",
+                  description: "Review community reports and update their status.",
+                  icon: "▤",
+                  path: "/admin/reports",
+                },
+                {
+                  title: "Manage Users",
+                  description: "View registered members and manage access.",
+                  icon: "♙",
+                  path: "/admin/users",
+                },
+                {
+                  title: "Manage Notices",
+                  description: "Create and manage important notices.",
+                  icon: "▣",
+                  path: "/admin/notices",
+                },
+                {
+                  title: "Announcements",
+                  description: "Publish updates for approved members.",
+                  icon: "◉",
+                  path: "/admin/announcements",
+                },
+              ].map((item) => (
+                <button
+                  key={item.path}
+                  onClick={() => navigate(item.path)}
+                  className="group bg-white border border-slate-200 rounded-2xl p-5 text-left shadow-sm hover:shadow-md hover:border-emerald-200 transition"
+                >
+                  <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center text-2xl mb-4 group-hover:bg-emerald-100 transition">
+                    {item.icon}
+                  </div>
+                  <h4 className="font-bold text-slate-800">
+                    {item.title}
+                  </h4>
+                  <p className="text-sm text-slate-500 leading-6 mt-2">
+                    {item.description}
                   </p>
+                  <span className="inline-block mt-4 text-sm font-semibold text-emerald-700">
+                    Open section →
+                  </span>
+                </button>
+              ))}
+            </div>
+          </section>
 
-                </div>
-
-                <span className="w-fit bg-yellow-50 text-yellow-700 px-3 py-1 rounded-full text-xs font-medium">
-                  {stats.pendingUsers} Pending
-                </span>
-
+          {/* Pending requests */}
+          <section className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+            <div className="px-5 py-5 sm:px-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900">
+                  Pending access requests
+                </h3>
+                <p className="text-sm text-slate-500 mt-1">
+                  Review requests before allowing access to the portal.
+                </p>
               </div>
-
+              <span className="w-fit rounded-full bg-amber-50 border border-amber-200 px-3 py-1.5 text-xs font-semibold text-amber-800">
+                {loading ? "Loading..." : `${users.length} to review`}
+              </span>
             </div>
 
             <div className="p-5 sm:p-6">
-
-              {loading && (
-                <div className="text-center py-8">
-
-                  <p className="text-slate-500">
-                    Loading requests...
+              {loading ? (
+                <div className="py-12 text-center">
+                  <div className="mx-auto w-8 h-8 border-4 border-emerald-100 border-t-emerald-700 rounded-full animate-spin" />
+                  <p className="text-sm text-slate-500 mt-4">
+                    Loading access requests...
                   </p>
-
                 </div>
-              )}
-
-              {!loading &&
-                !error &&
-                users.length === 0 && (
-                  <div className="text-center py-10">
-
-                    <div className="text-4xl mb-3">
-                      ✅
-                    </div>
-
-                    <h4 className="font-semibold text-slate-800">
-                      No pending requests
-                    </h4>
-
-                    <p className="text-sm text-slate-500 mt-1">
-                      All access requests have been reviewed.
-                    </p>
-
+              ) : users.length === 0 ? (
+                <div className="py-10 text-center">
+                  <div className="mx-auto w-14 h-14 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center text-2xl">
+                    ✓
                   </div>
-                )}
-
-              {!loading &&
-                !error &&
-                users.length > 0 && (
-                  <div className="space-y-4">
-
-                    {users.map((user) => (
-
-                      <div
-                        key={user._id}
-                        className="border rounded-xl p-4 sm:p-5"
-                      >
-
-                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
-
-                          <div>
-
-                            <h4 className="font-semibold text-slate-800">
-                              {user.name}
-                            </h4>
-
-                            <div className="mt-2 text-sm text-slate-500 space-y-1">
-
-                              <p>
-                                <strong>Email:</strong>{" "}
-                                {user.email}
-                              </p>
-
-                              <p>
-                                <strong>Phone:</strong>{" "}
-                                {user.phone}
-                              </p>
-
-                              <p>
-                                <strong>Address:</strong>{" "}
-                                {user.address}
-                              </p>
-
+                  <h4 className="font-semibold text-slate-800 mt-4">
+                    No pending requests
+                  </h4>
+                  <p className="text-sm text-slate-500 mt-2">
+                    There are no access requests waiting for review.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {users.map((user) => (
+                    <article
+                      key={user._id}
+                      className="rounded-xl border border-slate-200 p-4 sm:p-5 hover:border-slate-300 transition"
+                    >
+                      <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-5">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-3">
+                            <div className="w-11 h-11 shrink-0 rounded-full bg-emerald-50 text-emerald-800 flex items-center justify-center font-bold">
+                              {(user.name || "U").charAt(0).toUpperCase()}
                             </div>
-
+                            <div className="min-w-0">
+                              <h4 className="font-bold text-slate-800 break-words">
+                                {user.name}
+                              </h4>
+                              <p className="text-xs text-amber-700 mt-1">
+                                Awaiting approval
+                              </p>
+                            </div>
                           </div>
 
-                          <div className="flex flex-col sm:flex-row gap-2">
-
-                            <button
-                              onClick={() =>
-                                handleApprove(user._id)
-                              }
-                              className="bg-green-600 text-white px-5 py-2.5 rounded-lg hover:bg-green-700 transition"
-                            >
-                              Approve
-                            </button>
-
-                            <button
-                              onClick={() =>
-                                handleReject(user._id)
-                              }
-                              className="bg-red-600 text-white px-5 py-2.5 rounded-lg hover:bg-red-700 transition"
-                            >
-                              Reject
-                            </button>
-
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 mt-4 text-sm">
+                            <p className="text-slate-600 break-all">
+                              <span className="font-semibold text-slate-700">Email: </span>
+                              {user.email || "Not provided"}
+                            </p>
+                            <p className="text-slate-600 break-words">
+                              <span className="font-semibold text-slate-700">Phone: </span>
+                              {user.phone || "Not provided"}
+                            </p>
+                            <p className="text-slate-600 break-words sm:col-span-2">
+                              <span className="font-semibold text-slate-700">Address: </span>
+                              {user.address || "Not provided"}
+                            </p>
                           </div>
-
                         </div>
 
+                        <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+                          <button
+                            onClick={() => handleUserAction(user._id, "approve")}
+                            disabled={actionLoading === `${user._id}-approve` || actionLoading === `${user._id}-reject`}
+                            className="rounded-xl bg-emerald-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-50 transition"
+                          >
+                            {actionLoading === `${user._id}-approve` ? "Approving..." : "Approve"}
+                          </button>
+                          <button
+                            onClick={() => handleUserAction(user._id, "reject")}
+                            disabled={actionLoading === `${user._id}-approve` || actionLoading === `${user._id}-reject`}
+                            className="rounded-xl border border-red-200 bg-white px-5 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50 transition"
+                          >
+                            {actionLoading === `${user._id}-reject` ? "Rejecting..." : "Reject"}
+                          </button>
+                        </div>
                       </div>
-
-                    ))}
-
-                  </div>
-                )}
-
+                    </article>
+                  ))}
+                </div>
+              )}
             </div>
-
           </section>
 
-          {/* ================= ADMIN INFORMATION ================= */}
-
-          <section className="mt-8 bg-white rounded-xl border p-5 sm:p-6">
-
-            <h3 className="text-lg font-semibold text-slate-800 mb-5">
-              Admin Information
+          {/* Admin profile */}
+          <section className="mt-8 bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm">
+            <h3 className="text-lg font-bold text-slate-900">
+              Administrator profile
             </h3>
+            <p className="text-sm text-slate-500 mt-1 mb-5">
+              Information for the currently signed-in administrator.
+            </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-
-              <div>
-
-                <p className="text-sm text-slate-500">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+              <div className="rounded-xl bg-slate-50 p-4">
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
                   Name
                 </p>
-
-                <p className="font-medium text-slate-800 mt-1">
-                  {admin?.name}
+                <p className="font-semibold text-slate-800 mt-2">
+                  {admin?.name || "Not available"}
                 </p>
-
               </div>
-
-              <div>
-
-                <p className="text-sm text-slate-500">
+              <div className="rounded-xl bg-slate-50 p-4">
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
                   Email
                 </p>
-
-                <p className="font-medium text-slate-800 mt-1 break-all">
-                  {admin?.email}
+                <p className="font-semibold text-slate-800 mt-2 break-all">
+                  {admin?.email || "Not available"}
                 </p>
-
               </div>
-
-              <div>
-
-                <p className="text-sm text-slate-500">
+              <div className="rounded-xl bg-slate-50 p-4">
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
                   Role
                 </p>
-
-                <p className="font-medium text-slate-800 mt-1 capitalize">
-                  {admin?.role}
+                <p className="font-semibold text-emerald-800 mt-2 capitalize">
+                  {admin?.role || "Administrator"}
                 </p>
-
               </div>
-
             </div>
-
           </section>
- 
+
+          <footer className="text-center text-xs text-slate-400 py-8">
+            © {new Date().getFullYear()} Dumkibas Bazar Byabasthapan Samiti
+          </footer>
         </main>
-
       </div>
-
     </div>
   );
 }
