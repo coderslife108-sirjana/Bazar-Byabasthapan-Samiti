@@ -1,0 +1,286 @@
+
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+function Dashboard() {
+  const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  let user = null;
+
+  try {
+    user = JSON.parse(localStorage.getItem("user") || "null");
+  } catch {
+    user = null;
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login", { replace: true });
+  };
+
+  const goTo = (path) => {
+    setMenuOpen(false);
+    navigate(path);
+  };
+
+  const menuItems = [
+    { label: "Dashboard", icon: "🏠", path: "/dashboard" },
+    { label: "My Reports", icon: "📝", path: "/reports" },
+    { label: "My Complaints", icon: "⚠️", path: "/reports/create" },
+    { label: "Notices", icon: "📢", path: "/notices" },
+    { label: "Announcements", icon: "📣", path: "/announcements" },
+    { label: "Documents", icon: "📄", path: "/documents" },
+    { label: "My Profile", icon: "👤", path: "/profile" },
+  ];
+
+  const quickActions = [
+    {
+      icon: "📝",
+      title: "Create Report",
+      description: "Submit a new report to the administration.",
+      path: "/reports/create",
+      color: "bg-blue-50",
+    },
+    {
+      icon: "⚠️",
+      title: "Submit Complaint",
+      description: "Report an issue or problem in the bazaar.",
+      path: "/reports/create",
+      color: "bg-amber-50",
+    },
+    {
+      icon: "📢",
+      title: "View Notices",
+      description: "Read important committee notices.",
+      path: "/notices",
+      color: "bg-green-50",
+    },
+    {
+      icon: "📣",
+      title: "Announcements",
+      description: "Read the latest committee announcements.",
+      path: "/announcements",
+      color: "bg-purple-50",
+    },
+  ];
+
+  return (
+    <div className="min-h-screen bg-slate-100">
+      {/* Mobile header */}
+      <header className="sticky top-0 z-30 flex items-center justify-between border-b bg-white px-4 py-4 lg:hidden">
+        <div>
+          <h1 className="font-bold text-slate-800">Dumkibas Bazar</h1>
+          <p className="text-xs text-slate-500">
+            Byabasthapan Samiti
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setMenuOpen((open) => !open)}
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={menuOpen}
+          className="rounded-lg border px-3 py-2 text-xl text-slate-700 hover:bg-slate-100"
+        >
+          {menuOpen ? "✕" : "☰"}
+        </button>
+      </header>
+
+      {/* Mobile navigation */}
+      {menuOpen && (
+        <nav className="relative z-20 space-y-1 border-b bg-white p-4 lg:hidden">
+          {menuItems.map((item) => (
+            <button
+              type="button"
+              key={item.label}
+              onClick={() => goTo(item.path)}
+              className="w-full rounded-lg px-4 py-3 text-left text-slate-700 transition hover:bg-blue-50 hover:text-blue-700"
+            >
+              <span className="mr-2">{item.icon}</span>
+              {item.label}
+            </button>
+          ))}
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="w-full rounded-lg px-4 py-3 text-left text-red-600 hover:bg-red-50"
+          >
+            🚪 Logout
+          </button>
+        </nav>
+      )}
+
+      <div className="flex">
+        {/* Desktop sidebar */}
+        <aside className="hidden min-h-screen w-64 shrink-0 flex-col border-r bg-white lg:flex">
+          <div className="border-b p-6">
+            <h1 className="text-xl font-bold text-slate-800">
+              Dumkibas Bazar
+            </h1>
+            <p className="mt-1 text-sm text-slate-500">
+              Byabasthapan Samiti
+            </p>
+          </div>
+
+          <nav className="flex-1 space-y-2 p-4">
+            {menuItems.map((item) => (
+              <button
+                type="button"
+                key={item.label}
+                onClick={() => goTo(item.path)}
+                className={`w-full rounded-lg px-4 py-3 text-left transition ${
+                  item.path === "/dashboard"
+                    ? "bg-blue-50 font-semibold text-blue-700"
+                    : "text-slate-700 hover:bg-slate-100"
+                }`}
+              >
+                <span className="mr-2">{item.icon}</span>
+                {item.label}
+              </button>
+            ))}
+          </nav>
+
+          <div className="border-t p-4">
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="w-full rounded-lg px-4 py-3 text-left text-red-600 hover:bg-red-50"
+            >
+              🚪 Logout
+            </button>
+          </div>
+        </aside>
+
+        {/* Main content */}
+        <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">
+          <section className="mb-8">
+            <p className="text-sm text-slate-500">Dashboard</p>
+
+            <h2 className="mt-1 break-words text-2xl font-bold text-slate-800 sm:text-3xl">
+              Welcome, {user?.name || "User"} 👋
+            </h2>
+
+            <p className="mt-2 text-slate-500">
+              Manage your reports, complaints, notices, and committee
+              information.
+            </p>
+          </section>
+
+          {/* Account summary */}
+          <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <button
+              type="button"
+              onClick={() => goTo("/reports")}
+              className="rounded-xl border bg-white p-5 text-left transition hover:border-blue-300 hover:shadow-md"
+            >
+              <p className="text-sm text-slate-500">My Reports</p>
+              <p className="mt-2 font-semibold text-blue-700">
+                View my reports →
+              </p>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => goTo("/reports/create")}
+              className="rounded-xl border bg-white p-5 text-left transition hover:border-amber-300 hover:shadow-md"
+            >
+              <p className="text-sm text-slate-500">Complaints</p>
+              <p className="mt-2 font-semibold text-amber-700">
+                Submit an issue →
+              </p>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => goTo("/notices")}
+              className="rounded-xl border bg-white p-5 text-left transition hover:border-green-300 hover:shadow-md"
+            >
+              <p className="text-sm text-slate-500">Notices</p>
+              <p className="mt-2 font-semibold text-green-700">
+                Read notices →
+              </p>
+            </button>
+
+            <div className="rounded-xl border bg-white p-5">
+              <p className="text-sm text-slate-500">Account</p>
+              <p className="mt-2 font-semibold text-green-600">
+                {user?.role || "Member"}
+              </p>
+            </div>
+          </section>
+
+          {/* Quick actions */}
+          <section>
+            <h3 className="mb-4 text-lg font-semibold text-slate-800">
+              Quick Actions
+            </h3>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {quickActions.map((action) => (
+                <button
+                  type="button"
+                  key={action.title}
+                  onClick={() => goTo(action.path)}
+                  className="group rounded-xl border border-slate-200 bg-white p-5 text-left transition hover:-translate-y-1 hover:border-blue-300 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                >
+                  <div
+                    className={`mb-4 flex h-12 w-12 items-center justify-center rounded-xl text-2xl ${action.color}`}
+                  >
+                    {action.icon}
+                  </div>
+
+                  <h4 className="font-semibold text-slate-800 group-hover:text-blue-700">
+                    {action.title}
+                  </h4>
+
+                  <p className="mt-2 text-sm leading-6 text-slate-500">
+                    {action.description}
+                  </p>
+
+                  <p className="mt-4 text-sm font-semibold text-blue-600">
+                    Open section →
+                  </p>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* Account information */}
+          <section className="mt-8 rounded-xl border bg-white p-5 sm:p-6">
+            <h3 className="mb-5 text-lg font-semibold text-slate-800">
+              Account Information
+            </h3>
+
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              <div>
+                <p className="text-sm text-slate-500">Name</p>
+                <p className="mt-1 break-words font-medium text-slate-800">
+                  {user?.name || "Not available"}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-sm text-slate-500">Email</p>
+                <p className="mt-1 break-all font-medium text-slate-800">
+                  {user?.email || "Not available"}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-sm text-slate-500">Role</p>
+                <p className="mt-1 capitalize font-medium text-slate-800">
+                  {user?.role || "Member"}
+                </p>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+  );
+}
+
+export default Dashboard;
