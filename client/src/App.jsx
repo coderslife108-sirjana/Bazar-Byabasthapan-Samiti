@@ -1,3 +1,4 @@
+
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Home from "./pages/Home";
@@ -15,37 +16,47 @@ import Notices from "./pages/Notices";
 import AdminNotices from "./pages/AdminNotices";
 import AdminAnnouncements from "./pages/AdminAnnouncements";
 import Announcements from "./pages/Announcements";
+
 import { AuthProvider } from "./context/AuthContext";
-
-
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
     <AuthProvider>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/pending" element={<Pending />} />
+      <BrowserRouter>
+        <Routes>
+          {/* Public pages */}
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/pending" element={<Pending />} />
 
-        <Route path="/admin" element={<AdminDashboard />} />
+          {/* Logged-in users */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/reports/create" element={<CreateReport />} />
+            <Route path="/reports/:id" element={<ReportDetails />} />
+            <Route path="/reports" element={<MyReports />} />
+            <Route path="/notices" element={<Notices />} />
+            <Route path="/announcements" element={<Announcements />} />
+          </Route>
 
-        <Route path="/dashboard" element={<Dashboard />} /> 
-        <Route path="/reports/create" element={<CreateReport />} />
-        <Route path="/reports/:id" element={<ReportDetails />} />
-        <Route path="/reports" element={<MyReports />} />
-        <Route path="/admin/reports" element={<AdminReports />} />
-        <Route path="/admin/users" element={<AdminUsers />} />
-        <Route path="/notices" element={<Notices />} />
-        <Route path="/admin/notices" element={<AdminNotices />} />
-        <Route  path="/admin/announcements"  element={<AdminAnnouncements />} />
-        <Route path="/announcements" element={<Announcements />} />
-
-      </Routes>
-    </BrowserRouter>
+          {/* Admin only */}
+          <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/reports" element={<AdminReports />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/notices" element={<AdminNotices />} />
+            <Route
+              path="/admin/announcements"
+              element={<AdminAnnouncements />}
+            />
+          </Route>
+        </Routes>
+      </BrowserRouter>
     </AuthProvider>
   );
 }
 
 export default App;
+

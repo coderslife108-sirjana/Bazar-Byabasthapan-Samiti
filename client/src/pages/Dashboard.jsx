@@ -1,22 +1,15 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 function Dashboard() {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  let user = null;
-
-  try {
-    user = JSON.parse(localStorage.getItem("user") || "null");
-  } catch {
-    user = null;
-  }
-
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    logout();
     navigate("/login", { replace: true });
   };
 
@@ -206,7 +199,7 @@ function Dashboard() {
 
             <div className="rounded-xl border bg-white p-5">
               <p className="text-sm text-slate-500">Account</p>
-              <p className="mt-2 font-semibold text-green-600">
+              <p className="mt-2 font-semibold capitalize text-green-600">
                 {user?.role || "Member"}
               </p>
             </div>
@@ -284,3 +277,4 @@ function Dashboard() {
 }
 
 export default Dashboard;
+
