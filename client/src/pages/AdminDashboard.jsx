@@ -137,7 +137,7 @@ function AdminDashboard() {
 
   const Sidebar = ({ mobile = false }) => (
     <>
-      <div className="px-6 py-6 border-b border-slate-100">
+      <div className="flex items-start justify-between gap-3 border-b border-slate-100 px-6 py-6">
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 shrink-0 rounded-xl bg-emerald-700 text-white flex items-center justify-center text-xl font-bold shadow-sm">
             D
@@ -151,6 +151,16 @@ function AdminDashboard() {
             </p>
           </div>
         </div>
+        {mobile && (
+          <button
+            type="button"
+            onClick={() => setMenuOpen(false)}
+            aria-label={t("Close menu")}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-xl text-slate-700 hover:bg-slate-50"
+          >
+            ×
+          </button>
+        )}
       </div>
 
       <div className="px-4 pt-6 pb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
@@ -218,7 +228,11 @@ function AdminDashboard() {
         <button
           type="button"
           onClick={() => setMenuOpen(!menuOpen)}
-          aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
+          aria-label={
+            menuOpen
+              ? t("Close navigation menu")
+              : t("Open navigation menu")
+          }
           aria-expanded={menuOpen}
           className="w-10 h-10 rounded-xl border border-slate-200 text-slate-700 text-xl hover:bg-slate-50"
         >
@@ -228,15 +242,16 @@ function AdminDashboard() {
 
       {/* Mobile navigation */}
       {menuOpen && (
-        <div className="lg:hidden fixed inset-0 z-20 bg-slate-900/30">
-          <aside className="bg-white w-72 max-w-[85vw] h-full flex flex-col shadow-xl">
-            <Sidebar mobile />
-          </aside>
+        <div className="fixed inset-0 z-40 bg-slate-900/30 lg:hidden">
           <button
-            className="absolute inset-0 -z-10 w-full h-full cursor-default"
-            aria-label="Close navigation menu"
+            type="button"
+            className="absolute inset-y-0 left-[min(18rem,80vw)] right-0 cursor-default"
+            aria-label={t("Close navigation menu")}
             onClick={() => setMenuOpen(false)}
           />
+          <aside className="relative z-10 flex h-full w-72 max-w-[85vw] flex-col bg-white shadow-xl">
+            <Sidebar mobile />
+          </aside>
         </div>
       )}
 

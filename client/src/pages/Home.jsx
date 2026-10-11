@@ -1,5 +1,6 @@
 
 import { Navigate, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/useLanguage";
 
@@ -7,6 +8,7 @@ function Home() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   if (user) {
     return <Navigate to={user.role === "admin" ? "/admin" : "/dashboard"} replace />;
@@ -16,20 +18,20 @@ function Home() {
     <div className="min-h-screen bg-slate-50 text-slate-800">
       {/* Navigation */}
       <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-3 gap-y-2 px-3 py-3 sm:px-5 sm:py-4 lg:px-8">
           <button
             onClick={() => navigate("/")}
-            className="flex items-center gap-3 text-left"
+            className="flex min-w-0 items-center gap-2 text-left sm:gap-3"
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-800 text-2xl text-white">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-800 text-xl text-white sm:h-12 sm:w-12 sm:text-2xl">
               🏛️
             </div>
 
             <div>
-              <h1 className="text-base font-bold text-slate-900 sm:text-lg">
+              <h1 className="text-sm font-bold leading-5 text-slate-900 sm:text-lg">
                 {t("Dumkibas Bazar")}
               </h1>
-              <p className="text-xs text-slate-500 sm:text-sm">
+              <p className="text-[11px] leading-4 text-slate-500 sm:text-sm">
                 {t("Byabasthapan Samiti")}
               </p>
             </div>
@@ -50,7 +52,7 @@ function Home() {
             </a>
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="hidden items-center gap-2 md:flex">
             <button
               onClick={() => navigate("/login")}
               className="rounded-lg px-3 py-2 text-sm font-semibold text-emerald-800 hover:bg-emerald-50 sm:px-5"
@@ -65,7 +67,57 @@ function Home() {
               {t("Request Access")}
             </button>
           </div>
+          <button
+            type="button"
+            onClick={() => setMenuOpen((open) => !open)}
+            aria-label={menuOpen ? t("Close menu") : t("Open menu")}
+            aria-expanded={menuOpen}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-xl text-slate-700 hover:bg-slate-50 md:hidden"
+          >
+            {menuOpen ? "×" : "☰"}
+          </button>
         </div>
+        {menuOpen && (
+          <nav className="space-y-1 border-t border-slate-200 bg-white p-3 md:hidden">
+            {[
+              ["Home", "#home"],
+              ["About Us", "#about"],
+              ["Services", "#services"],
+              ["Contact", "#contact"],
+            ].map(([label, href]) => (
+              <a
+                key={href}
+                href={href}
+                onClick={() => setMenuOpen(false)}
+                className="flex min-h-11 items-center rounded-lg px-3 text-sm font-medium text-slate-700 hover:bg-emerald-50"
+              >
+                {t(label)}
+              </a>
+            ))}
+            <div className="grid grid-cols-2 gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setMenuOpen(false);
+                  navigate("/login");
+                }}
+                className="min-h-11 rounded-lg px-3 py-2 text-sm font-semibold text-emerald-800 hover:bg-emerald-50"
+              >
+                {t("Login")}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMenuOpen(false);
+                  navigate("/register");
+                }}
+                className="min-h-11 rounded-lg bg-emerald-800 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-900"
+              >
+                {t("Request Access")}
+              </button>
+            </div>
+          </nav>
+        )}
       </header>
 
       {/* Hero section */}

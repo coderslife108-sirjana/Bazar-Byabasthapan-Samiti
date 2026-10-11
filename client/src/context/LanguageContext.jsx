@@ -96,6 +96,8 @@ const translations = {
   "Read important committee notices.": "समितिका महत्त्वपूर्ण सूचनाहरू पढ्नुहोस्।",
   "Read the latest committee announcements.": "समितिका पछिल्ला घोषणाहरू पढ्नुहोस्।",
   Home: "मुख्य पृष्ठ",
+  "Open navigation menu": "नेभिगेसन मेनु खोल्नुहोस्",
+  "Close navigation menu": "नेभिगेसन मेनु बन्द गर्नुहोस्",
   "Dumkibas Bazar": "दुम्किबास बजार",
   "Byabasthapan Samiti": "व्यवस्थापन समिति",
   "Dumkibas Bazar Byabasthapan Samiti": "दुम्किबास बजार व्यवस्थापन समिति",

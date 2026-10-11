@@ -27,7 +27,10 @@ function AppContent() {
 
   return (
     <BrowserRouter>
-      <div lang={language === "ne" ? "ne" : "en"}>
+      <div
+        lang={language === "ne" ? "ne" : "en"}
+        className="min-h-screen pb-[calc(env(safe-area-inset-bottom)+4.25rem)] sm:pb-0"
+      >
         <Routes>
           {/* Public pages */}
           <Route path="/" element={<Home />} />
@@ -58,13 +61,17 @@ function AppContent() {
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-        <div className="fixed bottom-4 right-4 z-50 flex rounded-xl border border-slate-200 bg-white p-1 shadow-lg">
+        <div
+          role="group"
+          aria-label="Language"
+          className="fixed bottom-[calc(env(safe-area-inset-bottom)+0.5rem)] right-1/2 z-50 flex min-h-12 translate-x-1/2 rounded-xl border border-slate-200 bg-white p-1 shadow-lg sm:bottom-4 sm:right-4 sm:translate-x-0"
+        >
           <button
             type="button"
             lang="en"
             aria-pressed={language === "en"}
             onClick={() => setLanguage("en")}
-            className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${
+            className={`min-h-10 rounded-lg px-3 py-2 text-sm font-semibold transition ${
               language === "en"
                 ? "bg-emerald-700 text-white"
                 : "text-slate-700 hover:bg-slate-100"
@@ -77,7 +84,7 @@ function AppContent() {
             lang="ne"
             aria-pressed={language === "ne"}
             onClick={() => setLanguage("ne")}
-            className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${
+            className={`min-h-10 rounded-lg px-3 py-2 text-sm font-semibold transition ${
               language === "ne"
                 ? "bg-emerald-700 text-white"
                 : "text-slate-700 hover:bg-slate-100"
