@@ -15,11 +15,13 @@ import Notices from "./pages/Notices";
 import AdminNotices from "./pages/AdminNotices";
 import AdminAnnouncements from "./pages/AdminAnnouncements";
 import Announcements from "./pages/Announcements";
+import { AuthProvider } from "./context/AuthContext";
 
 
 
 function App() {
   return (
+    <AuthProvider>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
@@ -42,6 +44,7 @@ function App() {
 
       </Routes>
     </BrowserRouter>
+    </AuthProvider>
   );
 }
 
