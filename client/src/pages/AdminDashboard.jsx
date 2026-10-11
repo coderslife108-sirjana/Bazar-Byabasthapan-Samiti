@@ -2,9 +2,13 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { useLanguage } from "../context/useLanguage";
+import { useAuth } from "../context/AuthContext";
 
 function AdminDashboard() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
+  const { logout } = useAuth();
 
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState({
@@ -79,9 +83,8 @@ function AdminDashboard() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/login");
+    logout();
+    navigate("/login", { replace: true });
   };
 
   const closeMenuAndNavigate = (path) => {
@@ -141,10 +144,10 @@ function AdminDashboard() {
           </div>
           <div>
             <h1 className="text-base font-bold text-slate-800">
-              Dumkibas Bazar
+              {t("Dumkibas Bazar")}
             </h1>
             <p className="text-xs text-slate-500 mt-1">
-              Byabasthapan Samiti
+              {t("Byabasthapan Samiti")}
             </p>
           </div>
         </div>
@@ -192,7 +195,7 @@ function AdminDashboard() {
           className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-sm font-medium text-red-600 hover:bg-red-50 transition"
         >
           <span aria-hidden="true">↪</span>
-          Sign out
+          {t("Logout")}
         </button>
       </div>
     </>
@@ -207,7 +210,7 @@ function AdminDashboard() {
             D
           </div>
           <div>
-            <h1 className="font-bold text-slate-800">Dumkibas Bazar</h1>
+            <h1 className="font-bold text-slate-800">{t("Dumkibas Bazar")}</h1>
             <p className="text-xs text-slate-500">Admin Portal</p>
           </div>
         </div>
@@ -507,7 +510,7 @@ function AdminDashboard() {
           </section>
 
           <footer className="text-center text-xs text-slate-400 py-8">
-            © {new Date().getFullYear()} Dumkibas Bazar Byabasthapan Samiti
+            © {new Date().getFullYear()} {t("Dumkibas Bazar Byabasthapan Samiti")}
           </footer>
         </main>
       </div>

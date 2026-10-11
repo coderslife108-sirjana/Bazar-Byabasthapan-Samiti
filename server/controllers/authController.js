@@ -26,17 +26,32 @@ const registerUser = async (req, res) => {
       address,
       password,
     } = req.body;
+    const normalizedEmail =
+      typeof email === "string" ? email.trim().toLowerCase() : "";
 
     // Check required fields
-    if (!name || !email || !phone || !address || !password) {
+    if (
+      !name ||
+      !normalizedEmail ||
+      !phone ||
+      !address ||
+      typeof password !== "string" ||
+      !password
+    ) {
       return res.status(400).json({
         message: "Please provide all required fields",
       });
     }
 
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      return res.status(400).json({
+        message: "Please provide a valid email address",
+      });
+    }
+
     // Check existing user
     const existingUser = await User.findOne({
-      email: email.toLowerCase(),
+      email: normalizedEmail,
     });
 
     if (existingUser) {
@@ -51,7 +66,7 @@ const registerUser = async (req, res) => {
     // Create user
     const user = await User.create({
       name,
-      email: email.toLowerCase(),
+      email: normalizedEmail,
       phone,
       address,
       password: hashedPassword,
@@ -85,7 +100,7 @@ const loginUser = async (req, res) => {
     const normalizedEmail =
       typeof email === "string" ? email.trim().toLowerCase() : "";
 
-    if (!normalizedEmail || !password) {
+    if (!normalizedEmail || typeof password !== "string" || !password) {
       return res.status(400).json({
         message: "Email and password are required",
       });

@@ -1,18 +1,24 @@
 
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Navigate, useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/useLanguage";
 
 function Login() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, user } = useAuth();
+  const { t } = useLanguage();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  if (user) {
+    return <Navigate to={user.role === "admin" ? "/admin" : "/dashboard"} replace />;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,12 +39,18 @@ function Login() {
         navigate("/dashboard");
       }
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
+      if (err.response?.status === 401) {
+        setError(
+          "Incorrect email or password. Check both and try again. If you have not requested an account, use Request Access below."
+        );
+      } else {
+        const message =
+          err.response?.data?.message ||
           (err.request
             ? "Unable to connect to the server. Check your connection and try again."
-            : "Unable to sign in. Please try again.")
-      );
+            : "Unable to sign in. Please try again.");
+        setError(message);
+      }
     } finally {
       setLoading(false);
     }
@@ -55,10 +67,10 @@ function Login() {
 
           <div>
             <h1 className="text-lg sm:text-xl font-bold text-slate-800">
-              Dumkibas Bazar
+              {t("Dumkibas Bazar")}
             </h1>
             <p className="text-xs sm:text-sm text-slate-500">
-              Byabasthapan Samiti
+              {t("Byabasthapan Samiti")}
             </p>
           </div>
         </div>
@@ -74,17 +86,17 @@ function Login() {
 
             <div className="relative z-10">
               <p className="text-emerald-200 font-semibold text-sm uppercase tracking-widest mb-5">
-                Welcome to our portal
+                {t("Welcome to our portal")}
               </p>
 
               <h2 className="text-3xl sm:text-4xl font-bold leading-tight mb-5">
-                Working Together for a Better Dumkibas
+                {t("Working Together for a Better Dumkibas")}
               </h2>
 
               <p className="text-emerald-50 leading-7 mb-8">
-                Access community notices, announcements, and reporting
-                services through the Dumkibas Bazar Byabasthapan Samiti
-                portal.
+                {t(
+                  "Access community notices, announcements, and reporting services through the Dumkibas Bazar Byabasthapan Samiti portal."
+                )}
               </p>
 
               <div className="space-y-4 text-sm text-emerald-50">
@@ -92,19 +104,19 @@ function Login() {
                   <span className="w-7 h-7 rounded-full bg-white/15 flex items-center justify-center">
                     ✓
                   </span>
-                  Community updates and notices
+                  {t("Community updates and notices")}
                 </p>
                 <p className="flex items-center gap-3">
                   <span className="w-7 h-7 rounded-full bg-white/15 flex items-center justify-center">
                     ✓
                   </span>
-                  Easy report submission
+                  {t("Easy report submission")}
                 </p>
                 <p className="flex items-center gap-3">
                   <span className="w-7 h-7 rounded-full bg-white/15 flex items-center justify-center">
                     ✓
                   </span>
-                  Organized community services
+                  {t("Organized community services")}
                 </p>
               </div>
             </div>
@@ -114,13 +126,13 @@ function Login() {
           <section className="p-7 sm:p-12 flex flex-col justify-center">
             <div className="mb-8">
               <p className="text-emerald-700 font-semibold text-sm mb-2">
-                MEMBER ACCESS
+                {t("MEMBER ACCESS")}
               </p>
               <h2 className="text-3xl font-bold text-slate-800">
-                Sign in
+                {t("Sign in")}
               </h2>
               <p className="text-slate-500 mt-2">
-                Enter your account details to continue.
+                {t("Enter your account details to continue.")}
               </p>
             </div>
 
@@ -130,7 +142,7 @@ function Login() {
                   htmlFor="email"
                   className="block text-sm font-semibold text-slate-700 mb-2"
                 >
-                  Email address
+                  {t("Email address")}
                 </label>
                 <input
                   id="email"
@@ -142,7 +154,18 @@ function Login() {
                   inputMode="email"
                   required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setError("");
+                  }}
+                  onInvalid={(e) => {
+                    if (e.currentTarget.validity.typeMismatch) {
+                      e.currentTarget.setCustomValidity(
+                        t("Please enter a valid email address.")
+                      );
+                    }
+                  }}
+                  onInput={(e) => e.currentTarget.setCustomValidity("")}
                   className="w-full rounded-xl border border-slate-300 px-4 py-3.5 outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100"
                 />
               </div>
@@ -152,18 +175,21 @@ function Login() {
                   htmlFor="password"
                   className="block text-sm font-semibold text-slate-700 mb-2"
                 >
-                  Password
+                  {t("Password")}
                 </label>
 
                 <div className="relative">
                   <input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
+                    placeholder={t("Enter your password")}
                     autoComplete="current-password"
                     required
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setError("");
+                    }}
                     className="w-full rounded-xl border border-slate-300 px-4 py-3.5 pr-20 outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100"
                   />
 
@@ -172,7 +198,7 @@ function Login() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-emerald-700 hover:text-emerald-900"
                   >
-                    {showPassword ? "Hide" : "Show"}
+                    {showPassword ? t("Hide") : t("Show")}
                   </button>
                 </div>
               </div>
@@ -182,7 +208,7 @@ function Login() {
                   role="alert"
                   className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700"
                 >
-                  {error}
+                  {t(error)}
                 </div>
               )}
 
@@ -191,22 +217,24 @@ function Login() {
                 disabled={loading}
                 className="w-full rounded-xl bg-emerald-700 py-3.5 font-semibold text-white shadow-md transition hover:bg-emerald-800 focus:outline-none focus:ring-4 focus:ring-emerald-200 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {loading ? "Signing in..." : "Sign in to your account"}
+                {loading
+                  ? t("Signing in...")
+                  : t("Sign in to your account")}
               </button>
             </form>
 
             <div className="mt-7 text-center text-sm text-slate-600">
-              Don't have access yet?{" "}
+              {t("Don't have access yet?")}{" "}
               <Link
                 to="/register"
                 className="font-semibold text-emerald-700 hover:text-emerald-900 hover:underline"
               >
-                Request Access
+                {t("Request Access")}
               </Link>
             </div>
 
             <p className="mt-8 text-center text-xs text-slate-400">
-              Authorized community members only
+              {t("Authorized community members only")}
             </p>
           </section>
         </div>
@@ -214,8 +242,8 @@ function Login() {
 
       {/* Footer */}
       <footer className="py-5 px-4 text-center text-sm text-slate-500">
-        © {new Date().getFullYear()} Dumkibas Bazar Byabasthapan Samiti.
-        All rights reserved.
+        © {new Date().getFullYear()} {t("Dumkibas Bazar Byabasthapan Samiti")}.{" "}
+        {t("All rights reserved.")}
       </footer>
     </div>
   );

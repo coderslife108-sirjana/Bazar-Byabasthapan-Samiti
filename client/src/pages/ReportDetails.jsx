@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../services/api";
+import { useLanguage } from "../context/useLanguage";
 
 
 function ReportDetails() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { t } = useLanguage();
 
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -24,10 +26,7 @@ function ReportDetails() {
 
         setReport(response.data.report);
       } catch (error) {
-        setError(
-          error.response?.data?.message ||
-            "Failed to load report"
-        );
+        setError(error.response?.data?.message || "Failed to load report");
       } finally {
         setLoading(false);
       }
@@ -40,7 +39,7 @@ function ReportDetails() {
     return (
       <div className="min-h-screen bg-slate-100 flex items-center justify-center">
         <p className="text-slate-500">
-          Loading report...
+          {t("Loading report...")}
         </p>
       </div>
     );
@@ -54,11 +53,11 @@ function ReportDetails() {
             onClick={() => navigate("/reports")}
             className="text-blue-600 hover:underline text-sm mb-6"
           >
-            ← Back to My Reports
+            ← {t("Back to My Reports")}
           </button>
 
           <div className="bg-red-50 text-red-700 border border-red-200 rounded-lg p-4">
-            {error}
+            {t(error)}
           </div>
         </div>
       </div>
@@ -77,7 +76,7 @@ function ReportDetails() {
           onClick={() => navigate("/reports")}
           className="text-blue-600 hover:underline text-sm mb-6"
         >
-          ← Back to My Reports
+          ← {t("Back to My Reports")}
         </button>
 
         <div className="bg-white rounded-xl border p-5 sm:p-8">
@@ -87,7 +86,7 @@ function ReportDetails() {
 
             <div>
               <p className="text-sm text-slate-500">
-                Report
+                {t("Report")}
               </p>
 
               <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 mt-1">
@@ -106,7 +105,7 @@ function ReportDetails() {
 
             <div>
               <p className="text-sm font-medium text-slate-500">
-                Category
+                {t("Category")}
               </p>
 
               <p className="text-slate-800 mt-1">
@@ -116,7 +115,7 @@ function ReportDetails() {
 
             <div>
               <p className="text-sm font-medium text-slate-500">
-                Location
+                {t("Location")}
               </p>
 
               <p className="text-slate-800 mt-1">
@@ -126,7 +125,7 @@ function ReportDetails() {
 
             <div>
               <p className="text-sm font-medium text-slate-500">
-                Description
+                {t("Description")}
               </p>
 
               <p className="text-slate-700 mt-1 whitespace-pre-wrap">
@@ -136,7 +135,7 @@ function ReportDetails() {
 
             <div>
               <p className="text-sm font-medium text-slate-500">
-                Submitted On
+                {t("Submitted On")}
               </p>
 
               <p className="text-slate-800 mt-1">
@@ -152,7 +151,7 @@ function ReportDetails() {
           <div className="mt-8 border-t pt-6">
 
             <h2 className="text-lg font-semibold text-slate-800">
-              Administration Response
+              {t("Administration Response")}
             </h2>
 
             {report.adminResponse ? (
@@ -163,7 +162,7 @@ function ReportDetails() {
               </div>
             ) : (
               <p className="text-sm text-slate-500 mt-2">
-                No response from the administration yet.
+                {t("No response from the administration yet.")}
               </p>
             )}
 

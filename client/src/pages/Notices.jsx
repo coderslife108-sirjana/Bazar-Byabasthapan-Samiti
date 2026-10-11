@@ -2,9 +2,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { useLanguage } from "../context/useLanguage";
 
 function Notices() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -22,10 +24,7 @@ function Notices() {
 
         setNotices(response.data.notices || []);
       } catch (err) {
-        setError(
-          err.response?.data?.message ||
-            "Unable to load notices. Please try again."
-        );
+        setError(err.response?.data?.message || "Unable to load notices. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -46,37 +45,37 @@ function Notices() {
           onClick={() => navigate("/dashboard")}
           className="mb-5 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-50"
         >
-          ← Back to Dashboard
+          ← {t("Back to Dashboard")}
         </button>
 
         <div className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
           <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">
-            Dumkibas Bazar Byabasthapan Samiti
+            {t("Dumkibas Bazar Byabasthapan Samiti")}
           </p>
 
           <h1 className="mt-2 text-3xl font-bold text-gray-900">
-            Notices
+            {t("Notices")}
           </h1>
 
           <p className="mt-2 text-gray-600">
-            Read the latest official notices from the committee.
+            {t("Read the latest official notices from the committee.")}
           </p>
         </div>
 
         {loading && (
           <div className="rounded-xl bg-white p-8 text-center text-gray-600 shadow-sm">
-            Loading notices...
+            {t("Loading notices...")}
           </div>
         )}
 
         {!loading && error && (
           <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-red-700">
-            {error}
+            {t(error)}
             <button
               onClick={() => window.location.reload()}
               className="ml-3 font-semibold underline"
             >
-              Try again
+              {t("Try again")}
             </button>
           </div>
         )}
@@ -84,10 +83,10 @@ function Notices() {
         {!loading && !error && notices.length === 0 && (
           <div className="rounded-xl bg-white p-10 text-center shadow-sm">
             <h2 className="text-xl font-semibold text-gray-800">
-              No notices yet
+              {t("No notices yet")}
             </h2>
             <p className="mt-2 text-gray-500">
-              Published notices will appear here.
+              {t("Published notices will appear here.")}
             </p>
           </div>
         )}
@@ -101,7 +100,7 @@ function Notices() {
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-800">
-                    {notice.category || "General"}
+                    {notice.category || t("General")}
                   </span>
 
                   <span className="text-xs text-gray-500">
@@ -119,7 +118,7 @@ function Notices() {
 
                 {notice.createdBy?.name && (
                   <p className="mt-4 border-t border-gray-100 pt-3 text-sm text-gray-500">
-                    Published by {notice.createdBy.name}
+                    {t("Published by")} {notice.createdBy.name}
                   </p>
                 )}
               </article>

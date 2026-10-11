@@ -2,9 +2,11 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
+import { useLanguage } from "../context/useLanguage";
 
 function Register() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -33,16 +35,20 @@ function Register() {
     setLoading(true);
 
     try {
-      const response = await api.post("/auth/register", formData);
+      const response = await api.post("/auth/register", {
+        ...formData,
+        name: formData.name.trim(),
+        email: formData.email.trim().toLowerCase(),
+        phone: formData.phone.trim(),
+        address: formData.address.trim(),
+      });
       setMessage(response.data.message || "Your access request was submitted successfully.");
 
       setTimeout(() => {
         navigate("/pending");
       }, 1500);
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Registration failed. Please try again."
-      );
+      setError(err.response?.data?.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -62,10 +68,10 @@ function Register() {
 
           <div>
             <h1 className="text-lg sm:text-xl font-bold text-slate-800">
-              Dumkibas Bazar
+              {t("Dumkibas Bazar")}
             </h1>
             <p className="text-xs sm:text-sm text-slate-500">
-              Byabasthapan Samiti
+              {t("Byabasthapan Samiti")}
             </p>
           </div>
         </div>
@@ -81,26 +87,27 @@ function Register() {
             </div>
 
             <p className="text-emerald-200 font-semibold text-sm uppercase tracking-widest mb-4">
-              Join our community
+              {t("Join our community")}
             </p>
 
             <h2 className="text-3xl font-bold leading-tight mb-5">
-              Request Your Portal Access
+              {t("Request Your Portal Access")}
             </h2>
 
             <p className="text-emerald-50 leading-7 mb-8">
-              Create an access request to connect with community services,
-              read announcements, and submit reports.
+              {t(
+                "Create an access request to connect with community services, read announcements, and submit reports."
+              )}
             </p>
 
             <div className="rounded-2xl bg-white/10 border border-white/15 p-5">
-              <p className="font-semibold mb-2">How it works</p>
+              <p className="font-semibold mb-2">{t("How it works")}</p>
               <p className="text-sm text-emerald-50 leading-6">
-                1. Complete the request form.
+                {t("1. Complete the request form.")}
                 <br />
-                2. The administrator reviews your request.
+                {t("2. The administrator reviews your request.")}
                 <br />
-                3. Access is available after approval.
+                {t("3. Access is available after approval.")}
               </p>
             </div>
           </section>
@@ -109,27 +116,27 @@ function Register() {
           <section className="md:col-span-3 p-7 sm:p-10">
             <div className="mb-7">
               <p className="text-emerald-700 font-semibold text-sm mb-2">
-                NEW MEMBER
+                {t("NEW MEMBER")}
               </p>
               <h2 className="text-3xl font-bold text-slate-800">
-                Request Access
+                {t("Request Access")}
               </h2>
               <p className="text-slate-500 mt-2">
-                Fill in your details to submit your request.
+                {t("Fill in your details to submit your request.")}
               </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label htmlFor="name" className="block text-sm font-semibold text-slate-700 mb-2">
-                  Full name
+                  {t("Full name")}
                 </label>
                 <input
                   id="name"
                   name="name"
                   type="text"
                   autoComplete="name"
-                  placeholder="Enter your full name"
+                  placeholder={t("Enter your full name")}
                   value={formData.name}
                   onChange={handleChange}
                   required
@@ -140,7 +147,7 @@ function Register() {
               <div className="grid sm:grid-cols-2 gap-5">
                 <div>
                   <label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-2">
-                    Email address
+                    {t("Email address")}
                   </label>
                   <input
                     id="email"
@@ -150,6 +157,14 @@ function Register() {
                     placeholder="you@example.com"
                     value={formData.email}
                     onChange={handleChange}
+                    onInvalid={(e) => {
+                      if (e.currentTarget.validity.typeMismatch) {
+                        e.currentTarget.setCustomValidity(
+                          t("Please enter a valid email address.")
+                        );
+                      }
+                    }}
+                    onInput={(e) => e.currentTarget.setCustomValidity("")}
                     required
                     className={inputClass}
                   />
@@ -157,14 +172,14 @@ function Register() {
 
                 <div>
                   <label htmlFor="phone" className="block text-sm font-semibold text-slate-700 mb-2">
-                    Phone number
+                    {t("Phone number")}
                   </label>
                   <input
                     id="phone"
                     name="phone"
                     type="tel"
                     autoComplete="tel"
-                    placeholder="Enter phone number"
+                    placeholder={t("Enter phone number")}
                     value={formData.phone}
                     onChange={handleChange}
                     required
@@ -175,14 +190,14 @@ function Register() {
 
               <div>
                 <label htmlFor="address" className="block text-sm font-semibold text-slate-700 mb-2">
-                  Address
+                  {t("Address")}
                 </label>
                 <input
                   id="address"
                   name="address"
                   type="text"
                   autoComplete="street-address"
-                  placeholder="Enter your address"
+                  placeholder={t("Enter your address")}
                   value={formData.address}
                   onChange={handleChange}
                   required
@@ -192,7 +207,7 @@ function Register() {
 
               <div>
                 <label htmlFor="password" className="block text-sm font-semibold text-slate-700 mb-2">
-                  Create password
+                  {t("Create password")}
                 </label>
 
                 <div className="relative">
@@ -201,7 +216,7 @@ function Register() {
                     name="password"
                     type={showPassword ? "text" : "password"}
                     autoComplete="new-password"
-                    placeholder="Create a password"
+                    placeholder={t("Create a password")}
                     value={formData.password}
                     onChange={handleChange}
                     required
@@ -214,24 +229,24 @@ function Register() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-emerald-700 hover:text-emerald-900"
                   >
-                    {showPassword ? "Hide" : "Show"}
+                    {showPassword ? t("Hide") : t("Show")}
                   </button>
                 </div>
 
                 <p className="text-xs text-slate-500 mt-2">
-                  Use at least 6 characters.
+                  {t("Use at least 6 characters.")}
                 </p>
               </div>
 
               {message && (
                 <div role="status" className="rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm text-emerald-800">
-                  {message}
+                  {t(message)}
                 </div>
               )}
 
               {error && (
                 <div role="alert" className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-                  {error}
+                  {t(error)}
                 </div>
               )}
 
@@ -240,17 +255,19 @@ function Register() {
                 disabled={loading}
                 className="w-full rounded-xl bg-emerald-700 py-3.5 font-semibold text-white shadow-md transition hover:bg-emerald-800 focus:outline-none focus:ring-4 focus:ring-emerald-200 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {loading ? "Submitting request..." : "Submit Access Request"}
+                {loading
+                  ? t("Submitting request...")
+                  : t("Submit Access Request")}
               </button>
             </form>
 
             <p className="mt-6 text-center text-sm text-slate-600">
-              Already have an account?{" "}
+              {t("Already have an account?")}{" "}
               <Link
                 to="/login"
                 className="font-semibold text-emerald-700 hover:text-emerald-900 hover:underline"
               >
-                Sign in
+                {t("Sign in")}
               </Link>
             </p>
           </section>
@@ -258,8 +275,8 @@ function Register() {
       </main>
 
       <footer className="py-5 px-4 text-center text-sm text-slate-500">
-        © {new Date().getFullYear()} Dumkibas Bazar Byabasthapan Samiti.
-        All rights reserved.
+        © {new Date().getFullYear()} {t("Dumkibas Bazar Byabasthapan Samiti")}.{" "}
+        {t("All rights reserved.")}
       </footer>
     </div>
   );

@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { useLanguage } from "../context/useLanguage";
 
 function CreateReport() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const [formData, setFormData] = useState({
     title: "",
@@ -57,10 +59,7 @@ function CreateReport() {
       }, 1200);
 
     } catch (error) {
-      setError(
-        error.response?.data?.message ||
-          "Failed to submit report"
-      );
+      setError(error.response?.data?.message || "Failed to submit report");
     } finally {
       setLoading(false);
     }
@@ -77,15 +76,15 @@ function CreateReport() {
             onClick={() => navigate("/dashboard")}
             className="text-blue-600 hover:underline text-sm mb-4"
           >
-            ← Back to Dashboard
+            ← {t("Back to Dashboard")}
           </button>
 
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-800">
-            Create Report
+            {t("Create Report")}
           </h1>
 
           <p className="text-slate-500 mt-2">
-            Submit a report to the Dumkibas Bazar Management Committee.
+            {t("Submit a report to the Dumkibas Bazar Management Committee.")}
           </p>
         </div>
 
@@ -97,7 +96,7 @@ function CreateReport() {
             {/* Title */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Report Title
+                {t("Report Title")}
               </label>
 
               <input
@@ -105,7 +104,7 @@ function CreateReport() {
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                placeholder="Enter report title"
+                placeholder={t("Enter report title")}
                 required
                 className="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -114,7 +113,7 @@ function CreateReport() {
             {/* Category */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Category
+                {t("Category")}
               </label>
 
               <select
@@ -125,43 +124,43 @@ function CreateReport() {
                 className="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">
-                  Select a category
+                  {t("Select a category")}
                 </option>
 
                 <option value="Waste Management">
-                  Waste Management
+                  {t("Waste Management")}
                 </option>
 
                 <option value="Road/Infrastructure">
-                  Road / Infrastructure
+                  {t("Road / Infrastructure")}
                 </option>
 
                 <option value="Market Management">
-                  Market Management
+                  {t("Market Management")}
                 </option>
 
                 <option value="Street/Vendor Issues">
-                  Street / Vendor Issues
+                  {t("Street / Vendor Issues")}
                 </option>
 
                 <option value="Sanitation">
-                  Sanitation
+                  {t("Sanitation")}
                 </option>
 
                 <option value="Electricity/Lighting">
-                  Electricity / Lighting
+                  {t("Electricity / Lighting")}
                 </option>
 
                 <option value="Water">
-                  Water
+                  {t("Water")}
                 </option>
 
                 <option value="Security">
-                  Security
+                  {t("Security")}
                 </option>
 
                 <option value="Other">
-                  Other
+                  {t("Other")}
                 </option>
               </select>
             </div>
@@ -169,7 +168,7 @@ function CreateReport() {
             {/* Location */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Location
+                {t("Location")}
               </label>
 
               <input
@@ -177,7 +176,7 @@ function CreateReport() {
                 name="location"
                 value={formData.location}
                 onChange={handleChange}
-                placeholder="Where did this issue occur?"
+                placeholder={t("Where did this issue occur?")}
                 required
                 className="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -186,14 +185,14 @@ function CreateReport() {
             {/* Description */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Description
+                {t("Description")}
               </label>
 
               <textarea
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                placeholder="Describe the issue in detail..."
+                placeholder={t("Describe the issue in detail...")}
                 rows="6"
                 required
                 className="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 resize-none"
@@ -209,7 +208,7 @@ function CreateReport() {
 
             {error && (
               <div className="bg-red-50 text-red-700 border border-red-200 rounded-lg p-3 text-sm">
-                {error}
+                {t(error)}
               </div>
             )}
 
@@ -219,7 +218,7 @@ function CreateReport() {
               disabled={loading}
               className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
             >
-              {loading ? "Submitting..." : "Submit Report"}
+              {loading ? t("Submitting...") : t("Submit Report")}
             </button>
 
           </form>

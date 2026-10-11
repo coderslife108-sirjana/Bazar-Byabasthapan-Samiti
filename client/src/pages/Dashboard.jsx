@@ -2,10 +2,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/useLanguage";
 
 function Dashboard() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { t } = useLanguage();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = () => {
@@ -19,41 +21,41 @@ function Dashboard() {
   };
 
   const menuItems = [
-    { label: "Dashboard", icon: "🏠", path: "/dashboard" },
-    { label: "My Reports", icon: "📝", path: "/reports" },
-    { label: "My Complaints", icon: "⚠️", path: "/reports/create" },
-    { label: "Notices", icon: "📢", path: "/notices" },
-    { label: "Announcements", icon: "📣", path: "/announcements" },
-    { label: "Documents", icon: "📄", path: "/documents" },
-    { label: "My Profile", icon: "👤", path: "/profile" },
+    { label: t("Dashboard"), icon: "🏠", path: "/dashboard" },
+    { label: t("My Reports"), icon: "📝", path: "/reports" },
+    { label: t("My Complaints"), icon: "⚠️", path: "/reports/create" },
+    { label: t("Notices"), icon: "📢", path: "/notices" },
+    { label: t("Announcements"), icon: "📣", path: "/announcements" },
+    { label: t("Documents"), icon: "📄", path: "/documents" },
+    { label: t("My Profile"), icon: "👤", path: "/profile" },
   ];
 
   const quickActions = [
     {
       icon: "📝",
-      title: "Create Report",
-      description: "Submit a new report to the administration.",
+      title: t("Create Report"),
+      description: t("Submit a new report to the administration."),
       path: "/reports/create",
       color: "bg-blue-50",
     },
     {
       icon: "⚠️",
-      title: "Submit Complaint",
-      description: "Report an issue or problem in the bazaar.",
+      title: t("Submit Complaint"),
+      description: t("Report an issue or problem in the bazaar."),
       path: "/reports/create",
       color: "bg-amber-50",
     },
     {
       icon: "📢",
-      title: "View Notices",
-      description: "Read important committee notices.",
+      title: t("View Notices"),
+      description: t("Read important committee notices."),
       path: "/notices",
       color: "bg-green-50",
     },
     {
       icon: "📣",
-      title: "Announcements",
-      description: "Read the latest committee announcements.",
+      title: t("Announcements"),
+      description: t("Read the latest committee announcements."),
       path: "/announcements",
       color: "bg-purple-50",
     },
@@ -64,16 +66,16 @@ function Dashboard() {
       {/* Mobile header */}
       <header className="sticky top-0 z-30 flex items-center justify-between border-b bg-white px-4 py-4 lg:hidden">
         <div>
-          <h1 className="font-bold text-slate-800">Dumkibas Bazar</h1>
+          <h1 className="font-bold text-slate-800">{t("Dumkibas Bazar")}</h1>
           <p className="text-xs text-slate-500">
-            Byabasthapan Samiti
+            {t("Byabasthapan Samiti")}
           </p>
         </div>
 
         <button
           type="button"
           onClick={() => setMenuOpen((open) => !open)}
-          aria-label={menuOpen ? "Close menu" : "Open menu"}
+          aria-label={menuOpen ? t("Close menu") : t("Open menu")}
           aria-expanded={menuOpen}
           className="rounded-lg border px-3 py-2 text-xl text-slate-700 hover:bg-slate-100"
         >
@@ -101,7 +103,7 @@ function Dashboard() {
             onClick={handleLogout}
             className="w-full rounded-lg px-4 py-3 text-left text-red-600 hover:bg-red-50"
           >
-            🚪 Logout
+            🚪 {t("Logout")}
           </button>
         </nav>
       )}
@@ -111,10 +113,10 @@ function Dashboard() {
         <aside className="hidden min-h-screen w-64 shrink-0 flex-col border-r bg-white lg:flex">
           <div className="border-b p-6">
             <h1 className="text-xl font-bold text-slate-800">
-              Dumkibas Bazar
+              {t("Dumkibas Bazar")}
             </h1>
             <p className="mt-1 text-sm text-slate-500">
-              Byabasthapan Samiti
+              {t("Byabasthapan Samiti")}
             </p>
           </div>
 
@@ -142,7 +144,7 @@ function Dashboard() {
               onClick={handleLogout}
               className="w-full rounded-lg px-4 py-3 text-left text-red-600 hover:bg-red-50"
             >
-              🚪 Logout
+              🚪 {t("Logout")}
             </button>
           </div>
         </aside>
@@ -150,15 +152,14 @@ function Dashboard() {
         {/* Main content */}
         <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">
           <section className="mb-8">
-            <p className="text-sm text-slate-500">Dashboard</p>
+            <p className="text-sm text-slate-500">{t("Dashboard")}</p>
 
             <h2 className="mt-1 break-words text-2xl font-bold text-slate-800 sm:text-3xl">
-              Welcome, {user?.name || "User"} 👋
+              {t("Welcome,")} {user?.name || t("User")} 👋
             </h2>
 
             <p className="mt-2 text-slate-500">
-              Manage your reports, complaints, notices, and committee
-              information.
+              {t("Manage your reports, complaints, notices, and committee information.")}
             </p>
           </section>
 
@@ -169,9 +170,9 @@ function Dashboard() {
               onClick={() => goTo("/reports")}
               className="rounded-xl border bg-white p-5 text-left transition hover:border-blue-300 hover:shadow-md"
             >
-              <p className="text-sm text-slate-500">My Reports</p>
+              <p className="text-sm text-slate-500">{t("My Reports")}</p>
               <p className="mt-2 font-semibold text-blue-700">
-                View my reports →
+                {t("View my reports →")}
               </p>
             </button>
 
@@ -180,9 +181,9 @@ function Dashboard() {
               onClick={() => goTo("/reports/create")}
               className="rounded-xl border bg-white p-5 text-left transition hover:border-amber-300 hover:shadow-md"
             >
-              <p className="text-sm text-slate-500">Complaints</p>
+              <p className="text-sm text-slate-500">{t("Complaints")}</p>
               <p className="mt-2 font-semibold text-amber-700">
-                Submit an issue →
+                {t("Submit an issue →")}
               </p>
             </button>
 
@@ -191,16 +192,16 @@ function Dashboard() {
               onClick={() => goTo("/notices")}
               className="rounded-xl border bg-white p-5 text-left transition hover:border-green-300 hover:shadow-md"
             >
-              <p className="text-sm text-slate-500">Notices</p>
+              <p className="text-sm text-slate-500">{t("Notices")}</p>
               <p className="mt-2 font-semibold text-green-700">
-                Read notices →
+                {t("Read notices →")}
               </p>
             </button>
 
             <div className="rounded-xl border bg-white p-5">
-              <p className="text-sm text-slate-500">Account</p>
+              <p className="text-sm text-slate-500">{t("Account")}</p>
               <p className="mt-2 font-semibold capitalize text-green-600">
-                {user?.role || "Member"}
+                {t(user?.role || "Member")}
               </p>
             </div>
           </section>
@@ -208,7 +209,7 @@ function Dashboard() {
           {/* Quick actions */}
           <section>
             <h3 className="mb-4 text-lg font-semibold text-slate-800">
-              Quick Actions
+              {t("Quick Actions")}
             </h3>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -234,7 +235,7 @@ function Dashboard() {
                   </p>
 
                   <p className="mt-4 text-sm font-semibold text-blue-600">
-                    Open section →
+                    {t("Open section →")}
                   </p>
                 </button>
               ))}
@@ -244,28 +245,28 @@ function Dashboard() {
           {/* Account information */}
           <section className="mt-8 rounded-xl border bg-white p-5 sm:p-6">
             <h3 className="mb-5 text-lg font-semibold text-slate-800">
-              Account Information
+              {t("Account Information")}
             </h3>
 
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
               <div>
-                <p className="text-sm text-slate-500">Name</p>
+                <p className="text-sm text-slate-500">{t("Name")}</p>
                 <p className="mt-1 break-words font-medium text-slate-800">
-                  {user?.name || "Not available"}
+                  {user?.name || t("Not available")}
                 </p>
               </div>
 
               <div>
-                <p className="text-sm text-slate-500">Email</p>
+                <p className="text-sm text-slate-500">{t("Email")}</p>
                 <p className="mt-1 break-all font-medium text-slate-800">
-                  {user?.email || "Not available"}
+                  {user?.email || t("Not available")}
                 </p>
               </div>
 
               <div>
-                <p className="text-sm text-slate-500">Role</p>
+                <p className="text-sm text-slate-500">{t("Role")}</p>
                 <p className="mt-1 capitalize font-medium text-slate-800">
-                  {user?.role || "Member"}
+                  {t(user?.role || "Member")}
                 </p>
               </div>
             </div>
@@ -277,4 +278,3 @@ function Dashboard() {
 }
 
 export default Dashboard;
-

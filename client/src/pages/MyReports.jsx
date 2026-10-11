@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { useLanguage } from "../context/useLanguage";
 
 const REPORT_STATUSES = [
   "Draft",
@@ -40,6 +41,7 @@ function formatDate(date) {
 
 function MyReports() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -72,10 +74,7 @@ function MyReports() {
           : []
       );
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          "Failed to load your reports. Please try again."
-      );
+      setError(err.response?.data?.message || "Failed to load your reports. Please try again.");
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -130,17 +129,17 @@ function MyReports() {
             onClick={() => navigate("/dashboard")}
             className="mb-4 text-sm font-medium text-blue-600 hover:underline"
           >
-            ← Back to Dashboard
+            ← {t("Back to Dashboard")}
           </button>
 
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h1 className="text-2xl font-bold text-slate-800 sm:text-3xl">
-                My Reports
+                {t("My Reports")}
               </h1>
 
               <p className="mt-1 text-sm text-slate-500">
-                Track your submitted issues and admin responses.
+                {t("Track your submitted issues and admin responses.")}
               </p>
             </div>
 
@@ -150,14 +149,14 @@ function MyReports() {
                 disabled={loading || refreshing}
                 className="rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
               >
-                {refreshing ? "Refreshing..." : "↻ Refresh"}
+                {refreshing ? t("Refreshing...") : t("↻ Refresh")}
               </button>
 
               <button
                 onClick={() => navigate("/reports/create")}
                 className="rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700"
               >
-                + Create Report
+                + {t("Create Report")}
               </button>
             </div>
           </div>
@@ -176,7 +175,7 @@ function MyReports() {
               }`}
             >
               <p className="text-xs font-medium text-slate-500">
-                {status === "All" ? "Total Reports" : status}
+                {status === "All" ? t("Total Reports") : t(status)}
               </p>
 
               <p className="mt-2 text-2xl font-bold text-slate-800">
@@ -194,7 +193,7 @@ function MyReports() {
                 htmlFor="my-report-search"
                 className="mb-2 block text-sm font-semibold text-slate-700"
               >
-                Search My Reports
+                {t("Search My Reports")}
               </label>
 
               <input
@@ -204,7 +203,7 @@ function MyReports() {
                 onChange={(event) =>
                   setSearchTerm(event.target.value)
                 }
-                placeholder="Search title, category, location..."
+                placeholder={t("Search title, category, location...")}
                 className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
             </div>
@@ -214,7 +213,7 @@ function MyReports() {
                 htmlFor="my-report-status"
                 className="mb-2 block text-sm font-semibold text-slate-700"
               >
-                Filter by Status
+                {t("Filter by Status")}
               </label>
 
               <select
@@ -225,11 +224,11 @@ function MyReports() {
                 }
                 className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               >
-                <option value="All">All Statuses</option>
+                <option value="All">{t("All Statuses")}</option>
 
                 {REPORT_STATUSES.map((status) => (
                   <option key={status} value={status}>
-                    {status} ({statusCounts[status]})
+                    {t(status)} ({statusCounts[status]})
                   </option>
                 ))}
               </select>
@@ -238,11 +237,11 @@ function MyReports() {
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500">
             <p>
-              Showing{" "}
+              {t("Showing")}{" "}
               <strong className="text-slate-800">
                 {filteredReports.length}
               </strong>{" "}
-              of {reports.length} reports
+              {t("of")} {reports.length} {t("reports")}
             </p>
 
             {(searchTerm || statusFilter !== "All") && (
@@ -253,7 +252,7 @@ function MyReports() {
                 }}
                 className="font-semibold text-blue-600 hover:underline"
               >
-                Clear filters
+                {t("Clear filters")}
               </button>
             )}
           </div>
@@ -263,7 +262,7 @@ function MyReports() {
         {loading && (
           <div className="rounded-xl border border-slate-200 bg-white p-8 text-center">
             <p className="text-slate-500">
-              Loading your reports...
+              {t("Loading your reports...")}
             </p>
           </div>
         )}
@@ -274,13 +273,13 @@ function MyReports() {
             role="alert"
             className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"
           >
-            <p>{error}</p>
+            <p>{t(error)}</p>
 
             <button
               onClick={() => getReports()}
               className="mt-3 font-semibold underline"
             >
-              Try again
+              {t("Try again")}
             </button>
           </div>
         )}
@@ -291,18 +290,18 @@ function MyReports() {
             <div className="mb-3 text-4xl">📝</div>
 
             <h2 className="text-lg font-semibold text-slate-800">
-              No reports yet
+              {t("No reports yet")}
             </h2>
 
             <p className="mt-2 text-slate-500">
-              You have not submitted any reports yet.
+              {t("You have not submitted any reports yet.")}
             </p>
 
             <button
               onClick={() => navigate("/reports/create")}
               className="mt-5 rounded-lg bg-blue-600 px-5 py-2.5 font-semibold text-white hover:bg-blue-700"
             >
-              Create Your First Report
+              {t("Create Your First Report")}
             </button>
           </div>
         )}
@@ -316,11 +315,11 @@ function MyReports() {
               <div className="mb-3 text-4xl">🔎</div>
 
               <h2 className="text-lg font-semibold text-slate-800">
-                No matching reports
+                {t("No matching reports")}
               </h2>
 
               <p className="mt-2 text-slate-500">
-                Try another search term or status filter.
+                {t("Try another search term or status filter.")}
               </p>
 
               <button
@@ -330,7 +329,7 @@ function MyReports() {
                 }}
                 className="mt-4 font-semibold text-blue-600 hover:underline"
               >
-                Clear filters
+                {t("Clear filters")}
               </button>
             </div>
           )}
@@ -349,7 +348,7 @@ function MyReports() {
                     navigate(`/reports/${report._id}`)
                   }
                   className="block w-full text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                  aria-label={`View report: ${report.title}`}
+                  aria-label={`${t("View report:")} ${report.title}`}
                 >
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
@@ -367,7 +366,7 @@ function MyReports() {
                         report.status
                       )}`}
                     >
-                      {report.status || "Unknown"}
+                      {t(report.status || "Unknown")}
                     </span>
                   </div>
 
@@ -378,14 +377,14 @@ function MyReports() {
                   <div className="mt-4 space-y-1 text-sm text-slate-500">
                     <p>
                       <strong className="text-slate-700">
-                        Location:
+                        {t("Location:")}
                       </strong>{" "}
                       {report.location || "N/A"}
                     </p>
 
                     <p>
                       <strong className="text-slate-700">
-                        Submitted:
+                        {t("Submitted:")}
                       </strong>{" "}
                       {formatDate(report.createdAt)}
                     </p>
@@ -395,7 +394,7 @@ function MyReports() {
                 {report.adminResponse && (
                   <div className="mt-4 rounded-lg border border-blue-100 bg-blue-50 p-4">
                     <p className="text-sm font-semibold text-blue-900">
-                      Admin Response
+                      {t("Admin Response")}
                     </p>
 
                     <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-6 text-blue-800">
@@ -411,7 +410,7 @@ function MyReports() {
                   }
                   className="mt-4 text-sm font-semibold text-blue-600 hover:underline"
                 >
-                  View Report Details →
+                  {t("View Report Details →")}
                 </button>
               </article>
             ))}

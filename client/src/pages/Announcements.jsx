@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { useLanguage } from "../context/useLanguage";
 
 function Announcements() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -38,29 +40,29 @@ function Announcements() {
           onClick={() => navigate("/dashboard")}
           className="mb-6 rounded-lg bg-white px-4 py-2 text-slate-700 shadow hover:bg-slate-50"
         >
-          ← Back to Dashboard
+          ← {t("Back to Dashboard")}
         </button>
 
         <h1 className="text-2xl font-bold text-slate-800 sm:text-3xl">
-          📣 Announcements
+          📣 {t("Announcements")}
         </h1>
         <p className="mt-2 text-slate-600">
-          Latest announcements from Dumkibas Bazar Byabasthapan Samiti.
+          {t("Latest announcements from Dumkibas Bazar Byabasthapan Samiti.")}
         </p>
 
         {loading && (
-          <p className="mt-6 text-slate-600">Loading announcements...</p>
+          <p className="mt-6 text-slate-600">{t("Loading announcements...")}</p>
         )}
 
         {error && (
           <p className="mt-6 rounded-lg bg-red-50 p-4 text-red-700">
-            {error}
+            {t(error)}
           </p>
         )}
 
         {!loading && !error && announcements.length === 0 && (
           <div className="mt-6 rounded-xl border bg-white p-6 text-slate-600">
-            No announcements have been published yet.
+            {t("No announcements have been published yet.")}
           </div>
         )}
 
@@ -92,4 +94,3 @@ function Announcements() {
 }
 
 export default Announcements;
-

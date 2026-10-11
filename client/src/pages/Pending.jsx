@@ -1,7 +1,10 @@
 
 import { Link } from "react-router-dom";
+import { useLanguage } from "../context/useLanguage";
 
 function Pending() {
+  const { t } = useLanguage();
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Header */}
@@ -13,10 +16,10 @@ function Pending() {
 
           <div>
             <h1 className="text-lg sm:text-xl font-bold text-slate-800">
-              Dumkibas Bazar
+              {t("Dumkibas Bazar")}
             </h1>
             <p className="text-xs sm:text-sm text-slate-500">
-              Byabasthapan Samiti
+              {t("Byabasthapan Samiti")}
             </p>
           </div>
         </div>
@@ -42,26 +45,27 @@ function Pending() {
           </div>
 
           <p className="text-emerald-700 font-semibold text-sm uppercase tracking-widest mb-3">
-            Request received
+            {t("Request received")}
           </p>
 
           <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 mb-4">
-            Your Request Is Under Review
+            {t("Your Request Is Under Review")}
           </h2>
 
           <p className="text-slate-600 leading-7 mb-6">
-            Thank you for requesting access to the Dumkibas Bazar
-            Byabasthapan Samiti portal. Your request has been submitted
-            successfully.
+            {t(
+              "Thank you for requesting access to the Dumkibas Bazar Byabasthapan Samiti portal. Your request has been submitted successfully."
+            )}
           </p>
 
           <div className="rounded-2xl bg-amber-50 border border-amber-200 p-5 text-left mb-7">
             <h3 className="font-semibold text-slate-800 mb-2">
-              What happens next?
+              {t("What happens next?")}
             </h3>
             <p className="text-sm text-slate-600 leading-6">
-              The administrator will review your request. Please wait
-              until your account is approved before signing in.
+              {t(
+                "The administrator will review your request. Please wait until your account is approved before signing in."
+              )}
             </p>
           </div>
 
@@ -70,27 +74,27 @@ function Pending() {
               to="/login"
               className="inline-flex justify-center items-center rounded-xl bg-emerald-700 px-6 py-3 font-semibold text-white transition hover:bg-emerald-800 focus:outline-none focus:ring-4 focus:ring-emerald-200"
             >
-              Go to Login
+              {t("Go to Login")}
             </Link>
 
             <Link
               to="/"
               className="inline-flex justify-center items-center rounded-xl border border-slate-300 px-6 py-3 font-semibold text-slate-700 transition hover:bg-slate-50"
             >
-              Back to Home
+              {t("Back to Home")}
             </Link>
           </div>
 
           <p className="text-xs text-slate-400 mt-8">
-            Dumkibas Bazar Byabasthapan Samiti
+            {t("Dumkibas Bazar Byabasthapan Samiti")}
           </p>
         </div>
       </main>
 
       {/* Footer */}
       <footer className="py-5 px-4 text-center text-sm text-slate-500">
-        © {new Date().getFullYear()} Dumkibas Bazar Byabasthapan Samiti.
-        All rights reserved.
+        © {new Date().getFullYear()} {t("Dumkibas Bazar Byabasthapan Samiti")}.{" "}
+        {t("All rights reserved.")}
       </footer>
     </div>
   );
