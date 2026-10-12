@@ -2,9 +2,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { useLanguage } from "../context/useLanguage";
 
 function AdminAnnouncements() {
   const navigate = useNavigate();
+  const { language, t } = useLanguage();
 
   const [announcements, setAnnouncements] = useState([]);
   const [title, setTitle] = useState("");
@@ -107,7 +109,7 @@ function AdminAnnouncements() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this announcement permanently?")) {
+    if (!window.confirm(t("Delete this announcement permanently?"))) {
       return;
     }
 
@@ -136,44 +138,44 @@ function AdminAnnouncements() {
           onClick={() => navigate("/admin")}
           className="mb-5 rounded-lg border bg-white px-4 py-2 hover:bg-gray-50"
         >
-          ← Back to Admin Dashboard
+          ← {t("Back to Admin Dashboard")}
         </button>
 
         <header className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
           <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">
-            Committee Administration
+            {t("Committee Administration")}
           </p>
 
           <h1 className="mt-2 text-3xl font-bold text-gray-900">
-            Manage Announcements
+            {t("Manage Announcements")}
           </h1>
 
           <p className="mt-2 text-gray-600">
-            Share important updates with approved website users.
+            {t("Share important updates with approved website users.")}
           </p>
         </header>
 
         {error && (
           <div className="mb-4 rounded-lg bg-red-50 p-4 text-red-700">
-            {error}
+            {t(error)}
           </div>
         )}
 
         {message && (
           <div className="mb-4 rounded-lg bg-green-50 p-4 text-green-700">
-            {message}
+            {t(message)}
           </div>
         )}
 
         <section className="mb-8 rounded-2xl bg-white p-6 shadow-sm">
           <h2 className="mb-5 text-xl font-bold text-gray-900">
-            Create an Announcement
+            {t("Create an Announcement")}
           </h2>
 
           <form onSubmit={handleCreate} className="space-y-4">
             <div>
               <label className="mb-1 block font-medium text-gray-700">
-                Announcement Title
+                {t("Announcement Title")}
               </label>
 
               <input
@@ -182,14 +184,14 @@ function AdminAnnouncements() {
                 onChange={(event) => setTitle(event.target.value)}
                 maxLength={200}
                 required
-                placeholder="Enter announcement title"
+                placeholder={t("Enter announcement title")}
                 className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
             <div>
               <label className="mb-1 block font-medium text-gray-700">
-                Announcement Details
+                {t("Announcement Details")}
               </label>
 
               <textarea
@@ -197,7 +199,7 @@ function AdminAnnouncements() {
                 onChange={(event) => setDescription(event.target.value)}
                 required
                 rows={5}
-                placeholder="Write your announcement here"
+                placeholder={t("Write your announcement here")}
                 className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -207,21 +209,21 @@ function AdminAnnouncements() {
               disabled={saving}
               className="w-full rounded-lg bg-blue-700 px-5 py-3 font-semibold text-white hover:bg-blue-800 disabled:opacity-60 sm:w-auto"
             >
-              {saving ? "Publishing..." : "Publish Announcement"}
+              {saving ? t("Publishing...") : t("Publish Announcement")}
             </button>
           </form>
         </section>
 
         <section className="rounded-2xl bg-white p-6 shadow-sm">
           <h2 className="mb-5 text-xl font-bold text-gray-900">
-            All Announcements
+            {t("All Announcements")}
           </h2>
 
           {loading ? (
-            <p className="text-gray-500">Loading announcements...</p>
+            <p className="text-gray-500">{t("Loading announcements...")}</p>
           ) : announcements.length === 0 ? (
             <p className="text-gray-500">
-              No announcements have been created yet.
+              {t("No announcements have been created yet.")}
             </p>
           ) : (
             <div className="space-y-4">
@@ -238,7 +240,7 @@ function AdminAnnouncements() {
                     {announcement.createdAt
                       ? new Date(
                           announcement.createdAt
-                        ).toLocaleDateString()
+                        ).toLocaleDateString(language === "ne" ? "ne-NP" : "en-US")
                       : ""}
                   </p>
 
@@ -254,21 +256,21 @@ function AdminAnnouncements() {
                           : "bg-gray-200 text-gray-700"
                       }`}
                     >
-                      {announcement.published ? "Published" : "Hidden"}
+                      {announcement.published ? t("Published") : t("Hidden")}
                     </span>
 
                     <button
                       onClick={() => togglePublished(announcement)}
                       className="rounded-lg border px-3 py-2 text-sm hover:bg-gray-50"
                     >
-                      {announcement.published ? "Hide" : "Publish"}
+                      {announcement.published ? t("Hide") : t("Publish")}
                     </button>
 
                     <button
                       onClick={() => handleDelete(announcement._id)}
                       className="rounded-lg bg-red-600 px-3 py-2 text-sm text-white hover:bg-red-700"
                     >
-                      Delete
+                      {t("Delete")}
                     </button>
                   </div>
                 </article>

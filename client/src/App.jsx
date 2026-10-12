@@ -11,11 +11,14 @@ import CreateReport from "./pages/CreateReport";
 import MyReports from "./pages/MyReports";
 import ReportDetails from "./pages/ReportDetails";
 import AdminReports from "./pages/AdminReports";
+import AdminReportDetails from "./pages/AdminReportDetails";
 import AdminUsers from "./pages/AdminUsers";
 import Notices from "./pages/Notices";
 import AdminNotices from "./pages/AdminNotices";
 import AdminAnnouncements from "./pages/AdminAnnouncements";
 import Announcements from "./pages/Announcements";
+import ManagerDashboard from "./pages/ManagerDashboard";
+import Messages from "./pages/Messages";
 
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./component/ProtectedRoute";
@@ -46,18 +49,25 @@ function AppContent() {
             <Route path="/reports" element={<MyReports />} />
             <Route path="/notices" element={<Notices />} />
             <Route path="/announcements" element={<Announcements />} />
+            <Route path="/messages" element={<Messages />} />
           </Route>
 
           {/* Admin only */}
           <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/reports" element={<AdminReports />} />
+            <Route path="/admin/reports/:id" element={<AdminReportDetails />} />
             <Route path="/admin/users" element={<AdminUsers />} />
-            <Route path="/admin/notices" element={<AdminNotices />} />
             <Route
               path="/admin/announcements"
               element={<AdminAnnouncements />}
             />
+          </Route>
+          <Route element={<ProtectedRoute allowedRoles={["noticeManager", "staff"]} />}>
+            <Route path="/manager" element={<ManagerDashboard />} />
+          </Route>
+          <Route element={<ProtectedRoute allowedRoles={["admin", "noticeManager", "staff"]} />}>
+            <Route path="/admin/notices" element={<AdminNotices />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

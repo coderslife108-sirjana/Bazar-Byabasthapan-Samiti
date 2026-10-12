@@ -28,6 +28,12 @@ const protect = async (req, res, next) => {
       });
     }
 
+    if (user.status !== "active") {
+      return res.status(403).json({
+        message: "This account is not active.",
+      });
+    }
+
     req.user = user;
     next();
   } catch (error) {
@@ -47,7 +53,21 @@ const adminOnly = (req, res, next) => {
   });
 };
 
+const noticeManagerOrAdmin = (req, res, next) => {
+  if (
+    req.user &&
+    ["admin", "noticeManager", "staff"].includes(req.user.role)
+  ) {
+    return next();
+  }
+
+  return res.status(403).json({
+    message: "Notice manager or admin access required.",
+  });
+};
+
 module.exports = {
   protect,
   adminOnly,
+  noticeManagerOrAdmin,
 };

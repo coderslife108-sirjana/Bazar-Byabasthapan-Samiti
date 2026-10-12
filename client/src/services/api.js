@@ -15,9 +15,21 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
+    if (config.data instanceof FormData) {
+      config.headers["Content-Type"] = "multipart/form-data";
+    }
+
     return config;
   },
   (error) => Promise.reject(error)
 );
 
 export default api;
+
+export const getUploadUrl = (uploadPath) => {
+  const apiBaseUrl = new URL(api.defaults.baseURL, window.location.origin);
+  return new URL(
+    uploadPath,
+    `${apiBaseUrl.href.replace(/\/?$/, "/")}`
+  ).href;
+};

@@ -239,9 +239,7 @@ const getDashboardStats = async (req, res) => {
 // ======================================================
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({
-      role: "member",
-    })
+    const users = await User.find()
       .select("-password")
       .sort({ createdAt: -1 });
 
@@ -257,6 +255,58 @@ const getAllUsers = async (req, res) => {
 
     res.status(500).json({
       message: "Server error while fetching users",
+    });
+  }
+};
+
+const updateUserRole = async (req, res) => {
+  try {
+    const allowedRoles = ["admin", "noticeManager", "member"];
+    const { role } = req.body;
+
+    if (!allowedRoles.includes(role)) {
+      return res.status(400).json({
+        message: "Please select a valid user role.",
+      });
+    }
+
+    if (req.params.id === req.user.id) {
+      return res.status(400).json({
+        message: "You cannot change your own role.",
+      });
+    }
+
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    if (role !== "member" && user.status !== "active") {
+      return res.status(400).json({
+        message: "Approve the user before assigning an elevated role.",
+      });
+    }
+
+    user.role = role;
+    await user.save();
+
+    res.status(200).json({
+      message: "User role updated successfully.",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+      },
+    });
+  } catch (error) {
+    console.error("Update user role error:", error);
+    res.status(500).json({
+      message: "Server error while updating user role.",
     });
   }
 };
@@ -398,6 +448,6 @@ module.exports = {
   getDashboardStats,
   suspendUser,
   reactivateUser,
-  updateUserDetails
+  updateUserDetails,
+  updateUserRole,
 };  
-

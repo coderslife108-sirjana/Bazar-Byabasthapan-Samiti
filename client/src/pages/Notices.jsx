@@ -1,12 +1,12 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../services/api";
+import api, { getUploadUrl } from "../services/api";
 import { useLanguage } from "../context/useLanguage";
 
 function Notices() {
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -35,7 +35,9 @@ function Notices() {
 
   const formatDate = (date) => {
     if (!date) return "";
-    return new Date(date).toLocaleDateString();
+    return new Date(date).toLocaleDateString(
+      language === "ne" ? "ne-NP" : "en-US"
+    );
   };
 
   return (
@@ -100,7 +102,7 @@ function Notices() {
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-800">
-                    {notice.category || t("General")}
+                    {t(notice.category || "General")}
                   </span>
 
                   <span className="text-xs text-gray-500">
@@ -111,6 +113,26 @@ function Notices() {
                 <h2 className="mt-4 text-xl font-bold text-gray-900">
                   {notice.title}
                 </h2>
+
+                {(notice.attachment?.path || notice.image) &&
+                  (notice.attachment?.mimeType?.startsWith("image/") ||
+                  (!notice.attachment?.path && notice.image) ? (
+                  <img
+                    src={getUploadUrl(notice.attachment?.path || notice.image)}
+                    alt={t("Notice image")}
+                    className="mt-3 max-h-72 w-full rounded-lg object-cover"
+                  />
+                  ) : (
+                    <a
+                      href={getUploadUrl(notice.attachment.path)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-3 inline-block rounded-lg bg-blue-50 px-4 py-2 font-medium text-blue-700 hover:bg-blue-100"
+                    >
+                      {t("Open attachment")}:{" "}
+                      {notice.attachment.name || t("Download PDF")}
+                    </a>
+                  ))}
 
                 <p className="mt-3 whitespace-pre-wrap break-words leading-7 text-gray-600">
                   {notice.description}

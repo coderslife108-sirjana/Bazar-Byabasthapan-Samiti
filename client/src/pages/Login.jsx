@@ -17,7 +17,14 @@ function Login() {
   const [loading, setLoading] = useState(false);
 
   if (user) {
-    return <Navigate to={user.role === "admin" ? "/admin" : "/dashboard"} replace />;
+    const destination =
+      user.role === "admin"
+        ? "/admin"
+        : ["noticeManager", "staff"].includes(user.role)
+          ? "/manager"
+          : "/dashboard";
+
+    return <Navigate to={destination} replace />;
   }
 
   const handleSubmit = async (e) => {
@@ -35,6 +42,10 @@ function Login() {
 
       if (response.data.user.role === "admin") {
         navigate("/admin");
+      } else if (
+        ["noticeManager", "staff"].includes(response.data.user.role)
+      ) {
+        navigate("/manager");
       } else {
         navigate("/dashboard");
       }

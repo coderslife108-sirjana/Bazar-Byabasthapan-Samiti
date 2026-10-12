@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { useLanguage } from "../context/useLanguage";
 
 const REPORT_STATUSES = [
   "Draft",
@@ -13,6 +14,7 @@ const REPORT_STATUSES = [
 
 function AdminReports() {
   const navigate = useNavigate();
+  const { language, t } = useLanguage();
 
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -111,7 +113,7 @@ function AdminReports() {
       return "N/A";
     }
 
-    return parsedDate.toLocaleString();
+    return parsedDate.toLocaleString(language === "ne" ? "ne-NP" : "en-US");
   };
 
   const statusCounts = useMemo(() => {
@@ -135,17 +137,17 @@ function AdminReports() {
             onClick={() => navigate("/admin")}
             className="mb-4 text-sm font-medium text-blue-600 hover:text-blue-800"
           >
-            ← Back to Admin Dashboard
+            ← {t("Back to Admin Dashboard")}
           </button>
 
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h1 className="text-2xl font-bold text-slate-800 sm:text-3xl">
-                Reports Management
+                {t("Reports Management")}
               </h1>
 
               <p className="mt-1 text-sm text-slate-500">
-                Review and manage reports submitted by members.
+                {t("Review and manage reports submitted by members.")}
               </p>
             </div>
 
@@ -154,7 +156,7 @@ function AdminReports() {
               disabled={loading || refreshing}
               className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {refreshing ? "Refreshing..." : "↻ Refresh Reports"}
+              {refreshing ? t("Refreshing...") : t("↻ Refresh Reports")}
             </button>
           </div>
         </div>
@@ -172,7 +174,7 @@ function AdminReports() {
               }`}
             >
               <p className="text-xs font-medium text-slate-500 sm:text-sm">
-                {status === "All" ? "Total Reports" : status}
+                {t(status === "All" ? "Total Reports" : status)}
               </p>
 
               <p className="mt-2 text-2xl font-bold text-slate-800">
@@ -190,7 +192,7 @@ function AdminReports() {
                 htmlFor="report-search"
                 className="mb-2 block text-sm font-semibold text-slate-700"
               >
-                Search Reports
+                {t("Search Reports")}
               </label>
 
               <input
@@ -200,7 +202,7 @@ function AdminReports() {
                 onChange={(event) =>
                   setSearchTerm(event.target.value)
                 }
-                placeholder="Search title, category, location, member..."
+                placeholder={t("Search title, category, location, member...")}
                 className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
             </div>
@@ -210,7 +212,7 @@ function AdminReports() {
                 htmlFor="status-filter"
                 className="mb-2 block text-sm font-semibold text-slate-700"
               >
-                Filter by Status
+                {t("Filter by Status")}
               </label>
 
               <select
@@ -221,11 +223,11 @@ function AdminReports() {
                 }
                 className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               >
-                <option value="All">All Statuses</option>
+                <option value="All">{t("All Statuses")}</option>
 
                 {REPORT_STATUSES.map((status) => (
                   <option key={status} value={status}>
-                    {status} ({statusCounts[status]})
+                    {t(status)} ({statusCounts[status]})
                   </option>
                 ))}
               </select>
@@ -234,11 +236,11 @@ function AdminReports() {
 
           <div className="mt-4 flex flex-col gap-2 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
             <p>
-              Showing{" "}
+              {t("Showing ")}
               <strong className="text-slate-800">
                 {filteredReports.length}
               </strong>{" "}
-              of {reports.length} reports
+              {t(" of ")}{reports.length}{t(" reports")}
             </p>
 
             {(searchTerm || statusFilter !== "All") && (
@@ -249,7 +251,7 @@ function AdminReports() {
                 }}
                 className="self-start font-semibold text-blue-600 hover:text-blue-800 sm:self-auto"
               >
-                Clear filters
+                {t("Clear filters")}
               </button>
             )}
           </div>
@@ -258,7 +260,7 @@ function AdminReports() {
         {/* Loading */}
         {loading && (
           <div className="rounded-xl border border-slate-200 bg-white p-10 text-center">
-            <p className="text-slate-600">Loading reports...</p>
+            <p className="text-slate-600">{t("Loading reports...")}</p>
           </div>
         )}
 
@@ -268,13 +270,13 @@ function AdminReports() {
             role="alert"
             className="mb-5 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700"
           >
-            <p>{error}</p>
+            <p>{t(error)}</p>
 
             <button
               onClick={() => getReports()}
               className="mt-3 font-semibold underline"
             >
-              Try again
+              {t("Try again")}
             </button>
           </div>
         )}
@@ -285,11 +287,11 @@ function AdminReports() {
             <div className="mb-3 text-4xl">📋</div>
 
             <h2 className="text-lg font-semibold text-slate-800">
-              No reports found
+              {t("No reports found")}
             </h2>
 
             <p className="mt-2 text-sm text-slate-500">
-              No reports have been submitted yet.
+              {t("No reports have been submitted yet.")}
             </p>
           </div>
         )}
@@ -303,11 +305,11 @@ function AdminReports() {
               <div className="mb-3 text-4xl">🔎</div>
 
               <h2 className="text-lg font-semibold text-slate-800">
-                No matching reports
+                {t("No matching reports")}
               </h2>
 
               <p className="mt-2 text-sm text-slate-500">
-                Try another search term or status filter.
+                {t("Try another search term or status filter.")}
               </p>
 
               <button
@@ -317,7 +319,7 @@ function AdminReports() {
                 }}
                 className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
               >
-                Clear filters
+                {t("Clear filters")}
               </button>
             </div>
           )}
@@ -342,12 +344,12 @@ function AdminReports() {
                           report.status
                         )}`}
                       >
-                        {report.status || "Unknown"}
+                        {t(report.status || "Unknown")}
                       </span>
                     </div>
 
                     <p className="mt-2 text-sm font-medium text-blue-700">
-                      {report.category}
+                      {t(report.category)}
                     </p>
 
                     <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-6 text-slate-600">
@@ -357,28 +359,28 @@ function AdminReports() {
                     <div className="mt-4 grid grid-cols-1 gap-2 border-t border-slate-100 pt-4 text-sm text-slate-500 sm:grid-cols-2">
                       <p className="break-words">
                         <strong className="text-slate-700">
-                          Location:
+                          {t("Location:")}
                         </strong>{" "}
                         {report.location || "N/A"}
                       </p>
 
                       <p className="break-words">
                         <strong className="text-slate-700">
-                          Submitted by:
+                          {t("Submitted by:")}
                         </strong>{" "}
-                        {report.createdBy?.name || "Unknown"}
+                        {report.createdBy?.name || t("Unknown")}
                       </p>
 
                       <p className="break-words">
                         <strong className="text-slate-700">
-                          Email:
+                          {t("Email:")}
                         </strong>{" "}
                         {report.createdBy?.email || "N/A"}
                       </p>
 
                       <p>
                         <strong className="text-slate-700">
-                          Submitted:
+                          {t("Submitted:")}
                         </strong>{" "}
                         {formatDate(report.createdAt)}
                       </p>
@@ -386,7 +388,7 @@ function AdminReports() {
                       {report.adminResponse && (
                         <p className="break-words sm:col-span-2">
                           <strong className="text-slate-700">
-                            Admin Response:
+                            {t("Admin Response:")}
                           </strong>{" "}
                           {report.adminResponse}
                         </p>
@@ -395,7 +397,7 @@ function AdminReports() {
                       {report.attachments?.length > 0 && (
                         <p className="sm:col-span-2">
                           <strong className="text-slate-700">
-                            Attachments:
+                            {t("Attachments:")}
                           </strong>{" "}
                           {report.attachments.length}
                         </p>
@@ -409,7 +411,7 @@ function AdminReports() {
                     }
                     className="w-full shrink-0 rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 lg:w-auto"
                   >
-                    Manage Report →
+                    {t("Manage Report →")}
                   </button>
                 </div>
               </article>

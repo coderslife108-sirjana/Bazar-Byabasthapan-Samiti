@@ -97,6 +97,7 @@ function AdminDashboard() {
     { label: "Reports", icon: "▤", path: "/admin/reports" },
     { label: "Users", icon: "♙", path: "/admin/users" },
     { label: "Notices", icon: "▣", path: "/admin/notices" },
+    { label: "Messages", icon: "✉", path: "/messages" },
     {
       label: "Announcements",
       icon: "◉",
@@ -164,7 +165,7 @@ function AdminDashboard() {
       </div>
 
       <div className="px-4 pt-6 pb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
-        Management
+        {t("Management")}
       </div>
 
       <nav className="px-3 space-y-1 flex-1">
@@ -184,7 +185,7 @@ function AdminDashboard() {
               <span className="w-6 text-center text-lg" aria-hidden="true">
                 {item.icon}
               </span>
-              <span className="text-sm">{item.label}</span>
+              <span className="text-sm">{t(item.label)}</span>
               {active && (
                 <span className="ml-auto w-2 h-2 rounded-full bg-emerald-600" />
               )}
@@ -196,9 +197,9 @@ function AdminDashboard() {
       <div className="p-4 border-t border-slate-100">
         <div className="rounded-xl bg-slate-50 p-3 mb-3">
           <p className="text-sm font-semibold text-slate-700 truncate">
-            {admin?.name || "Administrator"}
+            {admin?.name || t("Administrator")}
           </p>
-          <p className="text-xs text-slate-500 mt-1">Administrator</p>
+          <p className="text-xs text-slate-500 mt-1">{t("Administrator")}</p>
         </div>
         <button
           onClick={handleLogout}
@@ -221,7 +222,7 @@ function AdminDashboard() {
           </div>
           <div>
             <h1 className="font-bold text-slate-800">{t("Dumkibas Bazar")}</h1>
-            <p className="text-xs text-slate-500">Admin Portal</p>
+            <p className="text-xs text-slate-500">{t("Admin Portal")}</p>
           </div>
         </div>
 
@@ -267,13 +268,13 @@ function AdminDashboard() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
             <div>
               <p className="text-sm font-medium text-emerald-700">
-                ADMINISTRATION / OVERVIEW
+                {t("ADMINISTRATION / OVERVIEW")}
               </p>
               <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mt-2">
-                Welcome back, {admin?.name || "Admin"}
+                {t("Welcome back,")} {admin?.name || t("Admin")}
               </h2>
               <p className="text-slate-500 mt-2">
-                Here's an overview of your community management portal.
+                {t("Here's an overview of your community management portal.")}
               </p>
             </div>
 
@@ -283,7 +284,7 @@ function AdminDashboard() {
               className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
             >
               <span aria-hidden="true">↻</span>
-              {loading ? "Refreshing..." : "Refresh data"}
+              {loading ? t("Refreshing...") : t("Refresh data")}
             </button>
           </div>
 
@@ -293,18 +294,18 @@ function AdminDashboard() {
               role="alert"
               className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-700"
             >
-              <p>{error}</p>
+              <p>{t(error)}</p>
               <button
                 onClick={loadDashboard}
                 className="font-semibold underline self-start"
               >
-                Try again
+                {t("Try again")}
               </button>
             </div>
           )}
 
           {/* Statistics */}
-          <section aria-label="Dashboard statistics" className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-4 mb-8">
+          <section aria-label={t("Dashboard statistics")} className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-4 mb-8">
             {statCards.map((card) => (
               <div
                 key={card.label}
@@ -313,7 +314,7 @@ function AdminDashboard() {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-sm font-medium text-slate-500">
-                      {card.label}
+                      {t(card.label)}
                     </p>
                     <p className="text-3xl font-bold text-slate-900 mt-3">
                       {loading ? "—" : card.value ?? 0}
@@ -323,7 +324,7 @@ function AdminDashboard() {
                     {card.icon}
                   </div>
                 </div>
-                <p className="text-xs text-slate-400 mt-4">{card.note}</p>
+                <p className="text-xs text-slate-400 mt-4">{t(card.note)}</p>
               </div>
             ))}
           </section>
@@ -332,10 +333,10 @@ function AdminDashboard() {
           <section className="mb-8">
             <div className="mb-4">
               <h3 className="text-lg font-bold text-slate-900">
-                Quick actions
+                {t("Quick actions")}
               </h3>
               <p className="text-sm text-slate-500 mt-1">
-                Jump directly to common management tasks.
+                {t("Jump directly to common management tasks.")}
               </p>
             </div>
 
@@ -375,13 +376,13 @@ function AdminDashboard() {
                     {item.icon}
                   </div>
                   <h4 className="font-bold text-slate-800">
-                    {item.title}
+                    {t(item.title)}
                   </h4>
                   <p className="text-sm text-slate-500 leading-6 mt-2">
-                    {item.description}
+                    {t(item.description)}
                   </p>
                   <span className="inline-block mt-4 text-sm font-semibold text-emerald-700">
-                    Open section →
+                    {t("Open section →")}
                   </span>
                 </button>
               ))}
@@ -393,14 +394,14 @@ function AdminDashboard() {
             <div className="px-5 py-5 sm:px-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
                 <h3 className="text-lg font-bold text-slate-900">
-                  Pending access requests
+                  {t("Pending access requests")}
                 </h3>
                 <p className="text-sm text-slate-500 mt-1">
-                  Review requests before allowing access to the portal.
+                  {t("Review requests before allowing access to the portal.")}
                 </p>
               </div>
               <span className="w-fit rounded-full bg-amber-50 border border-amber-200 px-3 py-1.5 text-xs font-semibold text-amber-800">
-                {loading ? "Loading..." : `${users.length} to review`}
+                {loading ? t("Loading...") : `${users.length} ${t("to review")}`}
               </span>
             </div>
 
@@ -409,7 +410,7 @@ function AdminDashboard() {
                 <div className="py-12 text-center">
                   <div className="mx-auto w-8 h-8 border-4 border-emerald-100 border-t-emerald-700 rounded-full animate-spin" />
                   <p className="text-sm text-slate-500 mt-4">
-                    Loading access requests...
+                    {t("Loading access requests...")}
                   </p>
                 </div>
               ) : users.length === 0 ? (
@@ -418,10 +419,10 @@ function AdminDashboard() {
                     ✓
                   </div>
                   <h4 className="font-semibold text-slate-800 mt-4">
-                    No pending requests
+                    {t("No pending requests")}
                   </h4>
                   <p className="text-sm text-slate-500 mt-2">
-                    There are no access requests waiting for review.
+                    {t("There are no access requests waiting for review.")}
                   </p>
                 </div>
               ) : (
@@ -442,23 +443,23 @@ function AdminDashboard() {
                                 {user.name}
                               </h4>
                               <p className="text-xs text-amber-700 mt-1">
-                                Awaiting approval
+                                {t("Awaiting approval")}
                               </p>
                             </div>
                           </div>
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 mt-4 text-sm">
                             <p className="text-slate-600 break-all">
-                              <span className="font-semibold text-slate-700">Email: </span>
-                              {user.email || "Not provided"}
+                              <span className="font-semibold text-slate-700">{t("Email: ")}</span>
+                              {user.email || t("Not provided")}
                             </p>
                             <p className="text-slate-600 break-words">
-                              <span className="font-semibold text-slate-700">Phone: </span>
-                              {user.phone || "Not provided"}
+                              <span className="font-semibold text-slate-700">{t("Phone: ")}</span>
+                              {user.phone || t("Not provided")}
                             </p>
                             <p className="text-slate-600 break-words sm:col-span-2">
-                              <span className="font-semibold text-slate-700">Address: </span>
-                              {user.address || "Not provided"}
+                              <span className="font-semibold text-slate-700">{t("Address: ")}</span>
+                              {user.address || t("Not provided")}
                             </p>
                           </div>
                         </div>
@@ -469,14 +470,14 @@ function AdminDashboard() {
                             disabled={actionLoading === `${user._id}-approve` || actionLoading === `${user._id}-reject`}
                             className="rounded-xl bg-emerald-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-50 transition"
                           >
-                            {actionLoading === `${user._id}-approve` ? "Approving..." : "Approve"}
+                            {actionLoading === `${user._id}-approve` ? t("Approving...") : t("Approve")}
                           </button>
                           <button
                             onClick={() => handleUserAction(user._id, "reject")}
                             disabled={actionLoading === `${user._id}-approve` || actionLoading === `${user._id}-reject`}
                             className="rounded-xl border border-red-200 bg-white px-5 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50 transition"
                           >
-                            {actionLoading === `${user._id}-reject` ? "Rejecting..." : "Reject"}
+                            {actionLoading === `${user._id}-reject` ? t("Rejecting...") : t("Reject")}
                           </button>
                         </div>
                       </div>
@@ -490,35 +491,35 @@ function AdminDashboard() {
           {/* Admin profile */}
           <section className="mt-8 bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm">
             <h3 className="text-lg font-bold text-slate-900">
-              Administrator profile
+              {t("Administrator profile")}
             </h3>
             <p className="text-sm text-slate-500 mt-1 mb-5">
-              Information for the currently signed-in administrator.
+              {t("Information for the currently signed-in administrator.")}
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
               <div className="rounded-xl bg-slate-50 p-4">
                 <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                  Name
+                  {t("Name")}
                 </p>
                 <p className="font-semibold text-slate-800 mt-2">
-                  {admin?.name || "Not available"}
+                  {admin?.name || t("Not available")}
                 </p>
               </div>
               <div className="rounded-xl bg-slate-50 p-4">
                 <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                  Email
+                  {t("Email")}
                 </p>
                 <p className="font-semibold text-slate-800 mt-2 break-all">
-                  {admin?.email || "Not available"}
+                  {admin?.email || t("Not available")}
                 </p>
               </div>
               <div className="rounded-xl bg-slate-50 p-4">
                 <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                  Role
+                  {t("Role")}
                 </p>
                 <p className="font-semibold text-emerald-800 mt-2 capitalize">
-                  {admin?.role || "Administrator"}
+                  {t(admin?.role || "Administrator")}
                 </p>
               </div>
             </div>

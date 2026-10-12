@@ -10,7 +10,9 @@ function ProtectedRoute({ allowedRoles }) {
     return <Navigate to="/login" replace />;
   }
 
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
+  const normalizedRole = user.role === "staff" ? "noticeManager" : user.role;
+
+  if (allowedRoles && !allowedRoles.includes(normalizedRole)) {
     return <Navigate to="/" replace />;
   }
 
@@ -18,4 +20,3 @@ function ProtectedRoute({ allowedRoles }) {
 }
 
 export default ProtectedRoute;
-

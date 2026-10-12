@@ -25,6 +25,7 @@ function Dashboard() {
     { label: t("My Reports"), icon: "📝", path: "/reports" },
     { label: t("My Complaints"), icon: "⚠️", path: "/reports/create" },
     { label: t("Notices"), icon: "📢", path: "/notices" },
+    { label: t("Messages"), icon: "✉️", path: "/messages" },
     { label: t("Announcements"), icon: "📣", path: "/announcements" },
     { label: t("Documents"), icon: "📄", path: "/documents" },
     { label: t("My Profile"), icon: "👤", path: "/profile" },
@@ -51,6 +52,13 @@ function Dashboard() {
       description: t("Read important committee notices."),
       path: "/notices",
       color: "bg-green-50",
+    },
+    {
+      icon: "✉️",
+      title: t("Messages"),
+      description: t("Read private messages sent to your account."),
+      path: "/messages",
+      color: "bg-sky-50",
     },
     {
       icon: "📣",

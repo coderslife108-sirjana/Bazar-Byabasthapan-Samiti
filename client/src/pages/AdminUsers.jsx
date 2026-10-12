@@ -2,9 +2,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { useLanguage } from "../context/useLanguage";
+import { useAuth } from "../context/AuthContext";
 
 function AdminUsers() {
   const navigate = useNavigate();
+  const { language, t } = useLanguage();
+  const { user: currentUser } = useAuth();
 
   const [users, setUsers] = useState([]);
   const [filter, setFilter] = useState("all");
@@ -13,6 +17,7 @@ function AdminUsers() {
   const [error, setError] = useState("");
   const [editingUser, setEditingUser] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [roleSavingId, setRoleSavingId] = useState("");
 
   // Get all users
   const getUsers = async () => {
@@ -155,6 +160,52 @@ function AdminUsers() {
     }
   };
 
+  const handleRoleChange = async (targetUser, role) => {
+    if (role === targetUser.role) return;
+    setRoleSavingId(targetUser._id);
+    setError("");
+    try {
+      const response = await api.put(`/admin/users/${targetUser._id}/role`, {
+        role,
+      });
+      setUsers((previousUsers) =>
+        previousUsers.map((item) =>
+          item._id === targetUser._id
+            ? { ...item, ...response.data.user }
+            : item
+        )
+      );
+    } catch (requestError) {
+      setError(
+        requestError.response?.data?.message ||
+          "Could not update the user role."
+      );
+    } finally {
+      setRoleSavingId("");
+    }
+  };
+
+  const isCurrentUser = (targetUser) =>
+    targetUser._id === (currentUser?.id || currentUser?._id);
+
+  const renderRoleSelect = (targetUser) => (
+    <select
+      aria-label={`${t("Role")} ${targetUser.name}`}
+      value={targetUser.role === "staff" ? "noticeManager" : targetUser.role}
+      disabled={
+        isCurrentUser(targetUser) ||
+        targetUser.status !== "active" ||
+        roleSavingId === targetUser._id
+      }
+      onChange={(event) => handleRoleChange(targetUser, event.target.value)}
+      className="mt-2 max-w-full rounded-md border border-slate-300 bg-white px-2 py-1 text-sm disabled:bg-slate-100"
+    >
+      <option value="admin">{t("Admin")}</option>
+      <option value="noticeManager">{t("Notice Manager")}</option>
+      <option value="member">{t("Member")}</option>
+    </select>
+  );
+
   // Filter by status and search by name, email, or phone
   const search = searchTerm.trim().toLowerCase();
 
@@ -214,7 +265,7 @@ function AdminUsers() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
             <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
               <h2 className="text-xl font-bold text-slate-800">
-                Edit User Details
+                {t("Edit User Details")}
               </h2>
 
               <form
@@ -223,7 +274,7 @@ function AdminUsers() {
               >
                 <div>
                   <label className="mb-1 block text-sm font-medium text-slate-700">
-                    Full Name
+                    {t("Full Name")}
                   </label>
 
                   <input
@@ -242,7 +293,7 @@ function AdminUsers() {
 
                 <div>
                   <label className="mb-1 block text-sm font-medium text-slate-700">
-                    Phone Number
+                    {t("Phone Number")}
                   </label>
 
                   <input
@@ -261,7 +312,7 @@ function AdminUsers() {
 
                 <div>
                   <label className="mb-1 block text-sm font-medium text-slate-700">
-                    Address
+                    {t("Address")}
                   </label>
 
                   <textarea
@@ -285,7 +336,7 @@ function AdminUsers() {
                     disabled={saving}
                     className="rounded-lg border border-slate-300 px-4 py-2 text-slate-700 hover:bg-slate-50"
                   >
-                    Cancel
+                    {t("Cancel")}
                   </button>
 
                   <button
@@ -293,7 +344,7 @@ function AdminUsers() {
                     disabled={saving}
                     className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
                   >
-                    {saving ? "Saving..." : "Save Changes"}
+                    {saving ? t("Saving...") : t("Save Changes")}
                   </button>
                 </div>
               </form>
@@ -307,27 +358,27 @@ function AdminUsers() {
             onClick={() => navigate("/admin")}
             className="mb-4 text-sm text-blue-600 hover:underline"
           >
-            ← Back to Admin Dashboard
+            ← {t("Back to Admin Dashboard")}
           </button>
 
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm text-slate-500">
-                Admin / Users
+                {t("Admin / Users")}
               </p>
 
               <h1 className="mt-1 text-2xl font-bold text-slate-800 sm:text-3xl">
-                User Management
+                {t("User Management")}
               </h1>
 
               <p className="mt-2 text-slate-500">
-                View and manage users of the committee system.
+                {t("View and manage users of the committee system.")}
               </p>
             </div>
 
             <div className="rounded-xl border bg-white px-5 py-3">
               <p className="text-sm text-slate-500">
-                Total Users
+                {t("Total Users")}
               </p>
 
               <p className="text-2xl font-bold text-slate-800">
@@ -343,7 +394,7 @@ function AdminUsers() {
             htmlFor="user-search"
             className="mb-2 block text-sm font-medium text-slate-700"
           >
-            Search Members
+            {t("Search Members")}
           </label>
 
           <input
@@ -351,7 +402,7 @@ function AdminUsers() {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by name, email, or phone..."
+            placeholder={t("Search by name, email, or phone...")}
             className="mb-4 w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           />
 
@@ -370,7 +421,7 @@ function AdminUsers() {
                   item.value
                 )}`}
               >
-                {item.label}
+                {t(item.label)}
               </button>
             ))}
           </div>
@@ -382,12 +433,12 @@ function AdminUsers() {
             role="alert"
             className="mb-6 flex items-center justify-between gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700"
           >
-            <p>{error}</p>
+            <p>{t(error)}</p>
 
             <button
               onClick={() => setError("")}
               className="font-bold"
-              aria-label="Dismiss error"
+              aria-label={t("Dismiss error")}
             >
               ×
             </button>
@@ -397,7 +448,7 @@ function AdminUsers() {
         {/* Loading */}
         {loading && (
           <div className="rounded-xl border bg-white p-10 text-center">
-            <p className="text-slate-500">Loading users...</p>
+            <p className="text-slate-500">{t("Loading users...")}</p>
           </div>
         )}
 
@@ -407,13 +458,13 @@ function AdminUsers() {
             <div className="mb-3 text-4xl">👥</div>
 
             <h2 className="text-lg font-semibold text-slate-800">
-              No users found
+              {t("No users found")}
             </h2>
 
             <p className="mt-2 text-slate-500">
               {searchTerm.trim()
-                ? "Try another name, email, or phone number."
-                : "There are no users in this category."}
+                ? t("Try another name, email, or phone number.")
+                : t("There are no users in this category.")}
             </p>
 
             {(searchTerm || filter !== "all") && (
@@ -424,7 +475,7 @@ function AdminUsers() {
                 }}
                 className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
               >
-                Clear Search and Filters
+                {t("Clear Search and Filters")}
               </button>
             )}
           </div>
@@ -438,31 +489,31 @@ function AdminUsers() {
                 <thead className="border-b bg-slate-50">
                   <tr>
                     <th className="px-5 py-4 text-left text-sm font-semibold text-slate-600">
-                      User
+                      {t("User")}
                     </th>
 
                     <th className="px-5 py-4 text-left text-sm font-semibold text-slate-600">
-                      Contact
+                      {t("Contact")}
                     </th>
 
                     <th className="px-5 py-4 text-left text-sm font-semibold text-slate-600">
-                      Address
+                      {t("Address")}
                     </th>
 
                     <th className="px-5 py-4 text-left text-sm font-semibold text-slate-600">
-                      Role
+                      {t("Role")}
                     </th>
 
                     <th className="px-5 py-4 text-left text-sm font-semibold text-slate-600">
-                      Status
+                      {t("Status")}
                     </th>
 
                     <th className="px-5 py-4 text-left text-sm font-semibold text-slate-600">
-                      Joined
+                      {t("Joined")}
                     </th>
 
                     <th className="px-5 py-4 text-left text-sm font-semibold text-slate-600">
-                      Actions
+                      {t("Actions")}
                     </th>
                   </tr>
                 </thead>
@@ -479,7 +530,7 @@ function AdminUsers() {
                         </p>
 
                         <p className="mt-1 text-xs text-slate-500">
-                          ID: {user._id}
+                          {t("ID: ")}{user._id}
                         </p>
                       </td>
 
@@ -489,18 +540,19 @@ function AdminUsers() {
                         </p>
 
                         <p className="mt-1 text-sm text-slate-500">
-                          {user.phone || "No phone"}
+                          {user.phone || t("No phone")}
                         </p>
                       </td>
 
                       <td className="px-5 py-4 text-sm text-slate-600">
-                        {user.address || "No address"}
+                        {user.address || t("No address")}
                       </td>
 
                       <td className="px-5 py-4">
                         <span className="text-sm font-medium capitalize text-slate-700">
-                          {user.role}
+                          {t(user.role)}
                         </span>
+                        {renderRoleSelect(user)}
                       </td>
 
                       <td className="px-5 py-4">
@@ -509,7 +561,7 @@ function AdminUsers() {
                             user.status
                           )}`}
                         >
-                          {user.status}
+                          {t(user.status)}
                         </span>
                       </td>
 
@@ -517,39 +569,39 @@ function AdminUsers() {
                         {user.createdAt
                           ? new Date(
                               user.createdAt
-                            ).toLocaleDateString()
+                            ).toLocaleDateString(language === "ne" ? "ne-NP" : "en-US")
                           : "—"}
                       </td>
 
                       <td className="px-5 py-4">
                         <div className="flex flex-col items-start gap-3">
-                          <button
-                            onClick={() => handleEdit(user)}
-                            className="text-sm font-medium text-blue-600 hover:text-blue-800"
-                          >
-                            Edit Details
-                          </button>
+                          {user.role === "member" && (
+                            <>
+                              <button
+                                onClick={() => handleEdit(user)}
+                                className="text-sm font-medium text-blue-600 hover:text-blue-800"
+                              >
+                                {t("Edit Details")}
+                              </button>
 
-                          {user.status === "active" && (
-                            <button
-                              onClick={() =>
-                                handleSuspend(user._id)
-                              }
-                              className="text-xs font-medium text-red-600 hover:text-red-800"
-                            >
-                              Suspend User
-                            </button>
-                          )}
+                              {user.status === "active" && (
+                                <button
+                                  onClick={() => handleSuspend(user._id)}
+                                  className="text-xs font-medium text-red-600 hover:text-red-800"
+                                >
+                                  {t("Suspend User")}
+                                </button>
+                              )}
 
-                          {user.status === "suspended" && (
-                            <button
-                              onClick={() =>
-                                handleReactivate(user._id)
-                              }
-                              className="text-xs font-medium text-green-600 hover:text-green-800"
-                            >
-                              Reactivate User
-                            </button>
+                              {user.status === "suspended" && (
+                                <button
+                                  onClick={() => handleReactivate(user._id)}
+                                  className="text-xs font-medium text-green-600 hover:text-green-800"
+                                >
+                                  {t("Reactivate User")}
+                                </button>
+                              )}
+                            </>
                           )}
                         </div>
                       </td>
@@ -585,41 +637,42 @@ function AdminUsers() {
                       user.status
                     )}`}
                   >
-                    {user.status}
+                    {t(user.status)}
                   </span>
                 </div>
 
                 <div className="mt-4 space-y-2 text-sm">
                   <p className="break-words">
                     <span className="text-slate-500">
-                      Phone:{" "}
+                      {t("Phone: ")}
                     </span>
                     <span className="text-slate-800">
-                      {user.phone || "Not provided"}
+                      {user.phone || t("Not provided")}
                     </span>
                   </p>
 
                   <p className="break-words">
                     <span className="text-slate-500">
-                      Address:{" "}
+                      {t("Address: ")}
                     </span>
                     <span className="text-slate-800">
-                      {user.address || "Not provided"}
+                      {user.address || t("Not provided")}
                     </span>
                   </p>
 
                   <p>
                     <span className="text-slate-500">
-                      Role:{" "}
+                      {t("Role: ")}
                     </span>
                     <span className="capitalize text-slate-800">
-                      {user.role}
+                      {t(user.role)}
                     </span>
                   </p>
+                  {renderRoleSelect(user)}
 
                   <p>
                     <span className="text-slate-500">
-                      Joined:{" "}
+                      {t("Joined: ")}
                     </span>
                     <span className="text-slate-800">
                       {user.createdAt
@@ -633,33 +686,33 @@ function AdminUsers() {
 
                 {/* Mobile Actions */}
                 <div className="mt-4 flex flex-col gap-2 border-t pt-4">
-                  <button
-                    onClick={() => handleEdit(user)}
-                    className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-                  >
-                    Edit Details
-                  </button>
+                  {user.role === "member" && (
+                    <>
+                      <button
+                        onClick={() => handleEdit(user)}
+                        className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                      >
+                        {t("Edit Details")}
+                      </button>
 
-                  {user.status === "active" && (
-                    <button
-                      onClick={() =>
-                        handleSuspend(user._id)
-                      }
-                      className="w-full rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-100"
-                    >
-                      Suspend User
-                    </button>
-                  )}
+                      {user.status === "active" && (
+                        <button
+                          onClick={() => handleSuspend(user._id)}
+                          className="w-full rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-100"
+                        >
+                          {t("Suspend User")}
+                        </button>
+                      )}
 
-                  {user.status === "suspended" && (
-                    <button
-                      onClick={() =>
-                        handleReactivate(user._id)
-                      }
-                      className="w-full rounded-lg border border-green-200 bg-green-50 px-4 py-2 text-sm font-medium text-green-700 hover:bg-green-100"
-                    >
-                      Reactivate User
-                    </button>
+                      {user.status === "suspended" && (
+                        <button
+                          onClick={() => handleReactivate(user._id)}
+                          className="w-full rounded-lg border border-green-200 bg-green-50 px-4 py-2 text-sm font-medium text-green-700 hover:bg-green-100"
+                        >
+                          {t("Reactivate User")}
+                        </button>
+                      )}
+                    </>
                   )}
                 </div>
               </div>

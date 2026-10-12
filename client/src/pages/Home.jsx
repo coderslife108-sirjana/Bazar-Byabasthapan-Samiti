@@ -11,7 +11,14 @@ function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   if (user) {
-    return <Navigate to={user.role === "admin" ? "/admin" : "/dashboard"} replace />;
+    const destination =
+      user.role === "admin"
+        ? "/admin"
+        : ["noticeManager", "staff"].includes(user.role)
+          ? "/manager"
+          : "/dashboard";
+
+    return <Navigate to={destination} replace />;
   }
 
   return (

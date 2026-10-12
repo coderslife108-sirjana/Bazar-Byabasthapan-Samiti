@@ -13,6 +13,15 @@ const noticeSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    image: {
+      type: String,
+      default: "",
+    },
+    attachment: {
+      path: { type: String, default: "" },
+      name: { type: String, default: "" },
+      mimeType: { type: String, default: "" },
+    },
     category: {
       type: String,
       enum: [
@@ -26,6 +35,14 @@ const noticeSchema = new mongoose.Schema(
     published: {
       type: Boolean,
       default: true,
+    },
+    publishedAt: {
+      type: Date,
+      default: Date.now,
+    },
+    expiresAt: {
+      type: Date,
+      default: null,
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

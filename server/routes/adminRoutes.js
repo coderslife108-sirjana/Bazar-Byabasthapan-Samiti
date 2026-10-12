@@ -10,6 +10,7 @@ const {
   suspendUser,
   reactivateUser,
    updateUserDetails,
+  updateUserRole,
 } = require("../controllers/adminController");
 
 const {
@@ -89,6 +90,12 @@ router.put(
   updateUserDetails
 );
 
+router.put(
+  "/users/:id/role",
+  protect,
+  adminOnly,
+  updateUserRole
+);
 
 
 
